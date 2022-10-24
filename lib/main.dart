@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:ui_challenge/answer_page.dart';
 import 'package:ui_challenge/challenges/success_animation.dart';
 import 'package:ui_challenge/base_page.dart';
 
@@ -15,9 +16,14 @@ void main() {
 
 final List<ChallengeItem> challenges = [
   ChallengeItem(
-      name: 'Success Animation',
-      builder: (_) =>
-          const BasePage(title: 'Success Animation', child: Center(child: SuccessAnimation()))),
+      name: 'Animated Ticket',
+      builder: (_) => const BasePage(
+          title: 'Success Animation',
+          child: Center(child: SuccessAnimation()))),
+  ChallengeItem(
+      name: 'Answer Page',
+      builder: (_) => const BasePage(
+          title: 'Answer  Animation', child: Center(child: AnswerPage()))),
 ];
 
 class MyApp extends StatelessWidget {
@@ -58,9 +64,16 @@ class _MyHomePageState extends State<MyHomePage> {
       ),
       body: ListView(
         children: challenges.map((item) {
+          var index = challenges.indexOf(item);
           return ListTile(
+            leading: Text('Question $index'),
+            trailing: ElevatedButton(
+                onPressed: () => Navigator.of(context)
+                    .push(MaterialPageRoute(builder: item.builder)),
+                child: Text('Answer')),
             title: Text(item.name),
-            onTap: () => Navigator.of(context).push(MaterialPageRoute(builder: item.builder)),
+            onTap: () => Navigator.of(context)
+                .push(MaterialPageRoute(builder: item.builder)),
           );
         }).toList(),
       ),
