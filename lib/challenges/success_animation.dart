@@ -15,8 +15,7 @@ class _SuccessAnimationState extends State<SuccessAnimation> with SingleTickerPr
   @override
   void initState() {
     super.initState();
-    _animationController =
-        AnimationController(duration: const Duration(milliseconds: 1000), vsync: this);
+    _animationController = AnimationController(duration: const Duration(milliseconds: 1000), vsync: this);
   }
 
   @override
@@ -25,10 +24,9 @@ class _SuccessAnimationState extends State<SuccessAnimation> with SingleTickerPr
       TweenSequenceItem(tween: Tween<double>(begin: 0.0, end: 1), weight: 1),
       TweenSequenceItem(tween: Tween<double>(begin: 1, end: 1.2), weight: 1),
       TweenSequenceItem(tween: Tween<double>(begin: 1.2, end: 1), weight: 1),
-    ]).animate(CurvedAnimation(
-        parent: _animationController, curve: const Interval(0.0, 0.5, curve: Curves.ease)));
-    Animation<double> width = Tween<double>(begin: 0.0, end: 1.0).animate(CurvedAnimation(
-        parent: _animationController, curve: const Interval(0.65, 1, curve: Curves.easeInOut)));
+    ]).animate(CurvedAnimation(parent: _animationController, curve: const Interval(0.0, 0.5, curve: Curves.ease)));
+    Animation<double> width = Tween<double>(begin: 0.0, end: 1.0).animate(
+        CurvedAnimation(parent: _animationController, curve: const Interval(0.65, 1, curve: Curves.easeInOut)));
 
     return Column(
       mainAxisAlignment: MainAxisAlignment.center,
@@ -40,8 +38,7 @@ class _SuccessAnimationState extends State<SuccessAnimation> with SingleTickerPr
               animation: _animationController,
               builder: (context, _) {
                 return CustomPaint(
-                    painter: SuccessAnimationPainter(
-                        radiusFactor: radius.value, tickWidthFactor: width.value));
+                    painter: SuccessAnimationPainter(radiusFactor: radius.value, tickWidthFactor: width.value));
               }),
           // decoration:
           //     BoxDecoration(shape: BoxShape.circle, border: Border.all(color: Colors.green)),
@@ -49,8 +46,7 @@ class _SuccessAnimationState extends State<SuccessAnimation> with SingleTickerPr
         const SizedBox(height: 16),
         ElevatedButton(
             onPressed: () {
-              if ([AnimationStatus.forward, AnimationStatus.completed]
-                  .contains(_animationController.status)) {
+              if ([AnimationStatus.forward, AnimationStatus.completed].contains(_animationController.status)) {
                 _animationController.reverse();
               } else {
                 _animationController.forward();
@@ -73,28 +69,27 @@ class SuccessAnimationPainter extends CustomPainter {
     var paint = Paint()
       ..color = Colors.white
       ..strokeWidth = 5
-      ..strokeCap = StrokeCap.round;
+      ..strokeCap = StrokeCap.round
+      ..style = PaintingStyle.stroke;
 
     final dimension = min(size.height, size.width);
     final center = Offset(size.width / 2, size.height / 2);
 
-    Offset startingPoint = Offset(dimension * .2, dimension * .55);
-    Offset middlePoint = Offset(dimension * min(.4, .2 + .2 / .4 * tickWidthFactor),
-        dimension * min(.72, .55 + .17 / .4 * tickWidthFactor));
-    Offset endPoint = Offset(dimension * min(.78, .4 + .38 / .6 * tickWidthFactor),
-        dimension * max(.3, .72 - .42 / .6 * tickWidthFactor));
+    final path = Path()
+      ..moveTo(dimension * .2, dimension * .55)
+      ..lineTo(dimension * .4, dimension * .72)
+      ..lineTo(dimension * .78, dimension * .3);
 
     final borderPaint = Paint()..color = Colors.green;
 
-    canvas.drawArc(Rect.fromCircle(center: center, radius: dimension * radiusFactor / 2), 0, 2 * pi,
-        true, borderPaint);
+    canvas.drawArc(Rect.fromCircle(center: center, radius: dimension * radiusFactor / 2), 0, 2 * pi, true, borderPaint);
+
+    final tickPathMetric = path.computeMetrics().first;
+
+    final effectiveTickPath = tickPathMetric.extractPath(0, tickPathMetric.length * tickWidthFactor);
 
     if (tickWidthFactor > 0) {
-      canvas.drawLine(startingPoint, middlePoint, paint);
-    }
-
-    if (tickWidthFactor > .4) {
-      canvas.drawLine(middlePoint, endPoint, paint);
+      canvas.drawPath(effectiveTickPath, paint);
     }
   }
 
