@@ -2,20 +2,26 @@ import 'dart:math';
 
 import 'package:flutter/material.dart';
 
-class SuccessAnimation extends StatefulWidget {
-  const SuccessAnimation({Key? key}) : super(key: key);
+class AnimatedProgressButtonSolution extends StatefulWidget {
+  const AnimatedProgressButtonSolution({Key? key}) : super(key: key);
+
+  static const title = 'Animated Progress Button Solution';
 
   @override
-  State<SuccessAnimation> createState() => _SuccessAnimationState();
+  State<AnimatedProgressButtonSolution> createState() =>
+      _AnimatedProgressButtonSolutionState();
 }
 
-class _SuccessAnimationState extends State<SuccessAnimation> with SingleTickerProviderStateMixin {
+class _AnimatedProgressButtonSolutionState
+    extends State<AnimatedProgressButtonSolution>
+    with SingleTickerProviderStateMixin {
   late final AnimationController _animationController;
 
   @override
   void initState() {
     super.initState();
-    _animationController = AnimationController(duration: const Duration(milliseconds: 1000), vsync: this);
+    _animationController = AnimationController(
+        duration: const Duration(milliseconds: 1000), vsync: this);
   }
 
   @override
@@ -24,9 +30,13 @@ class _SuccessAnimationState extends State<SuccessAnimation> with SingleTickerPr
       TweenSequenceItem(tween: Tween<double>(begin: 0.0, end: 1), weight: 1),
       TweenSequenceItem(tween: Tween<double>(begin: 1, end: 1.2), weight: 1),
       TweenSequenceItem(tween: Tween<double>(begin: 1.2, end: 1), weight: 1),
-    ]).animate(CurvedAnimation(parent: _animationController, curve: const Interval(0.0, 0.5, curve: Curves.ease)));
+    ]).animate(CurvedAnimation(
+        parent: _animationController,
+        curve: const Interval(0.0, 0.5, curve: Curves.ease)));
     Animation<double> width = Tween<double>(begin: 0.0, end: 1.0).animate(
-        CurvedAnimation(parent: _animationController, curve: const Interval(0.65, 1, curve: Curves.easeInOut)));
+        CurvedAnimation(
+            parent: _animationController,
+            curve: const Interval(0.65, 1, curve: Curves.easeInOut)));
 
     return Column(
       mainAxisAlignment: MainAxisAlignment.center,
@@ -38,7 +48,9 @@ class _SuccessAnimationState extends State<SuccessAnimation> with SingleTickerPr
               animation: _animationController,
               builder: (context, _) {
                 return CustomPaint(
-                    painter: SuccessAnimationPainter(radiusFactor: radius.value, tickWidthFactor: width.value));
+                    painter: SuccessAnimationPainter(
+                        radiusFactor: radius.value,
+                        tickWidthFactor: width.value));
               }),
           // decoration:
           //     BoxDecoration(shape: BoxShape.circle, border: Border.all(color: Colors.green)),
@@ -46,7 +58,8 @@ class _SuccessAnimationState extends State<SuccessAnimation> with SingleTickerPr
         const SizedBox(height: 16),
         ElevatedButton(
             onPressed: () {
-              if ([AnimationStatus.forward, AnimationStatus.completed].contains(_animationController.status)) {
+              if ([AnimationStatus.forward, AnimationStatus.completed]
+                  .contains(_animationController.status)) {
                 _animationController.reverse();
               } else {
                 _animationController.forward();
@@ -62,7 +75,8 @@ class SuccessAnimationPainter extends CustomPainter {
   final double radiusFactor;
   final double tickWidthFactor;
 
-  SuccessAnimationPainter({required this.radiusFactor, required this.tickWidthFactor});
+  SuccessAnimationPainter(
+      {required this.radiusFactor, required this.tickWidthFactor});
 
   @override
   void paint(Canvas canvas, Size size) {
@@ -82,11 +96,17 @@ class SuccessAnimationPainter extends CustomPainter {
 
     final borderPaint = Paint()..color = Colors.green;
 
-    canvas.drawArc(Rect.fromCircle(center: center, radius: dimension * radiusFactor / 2), 0, 2 * pi, true, borderPaint);
+    canvas.drawArc(
+        Rect.fromCircle(center: center, radius: dimension * radiusFactor / 2),
+        0,
+        2 * pi,
+        true,
+        borderPaint);
 
     final tickPathMetric = path.computeMetrics().first;
 
-    final effectiveTickPath = tickPathMetric.extractPath(0, tickPathMetric.length * tickWidthFactor);
+    final effectiveTickPath =
+        tickPathMetric.extractPath(0, tickPathMetric.length * tickWidthFactor);
 
     if (tickWidthFactor > 0) {
       canvas.drawPath(effectiveTickPath, paint);

@@ -1,30 +1,11 @@
 import 'package:flutter/material.dart';
-import 'package:ui_challenge/answer_page.dart';
-import 'package:ui_challenge/challenges/success_animation.dart';
 import 'package:ui_challenge/base_page.dart';
-
-class ChallengeItem {
-  final String name;
-  final WidgetBuilder builder;
-
-  ChallengeItem({required this.name, required this.builder});
-}
+import 'package:ui_challenge/const/challenges_list.dart';
+import 'package:ui_challenge/const/theme.dart';
 
 void main() {
   runApp(const MyApp());
 }
-
-final List<ChallengeItem> challenges = [
-  ChallengeItem(
-      name: 'Animated Ticket',
-      builder: (_) => const BasePage(
-          title: 'Success Animation',
-          child: Center(child: SuccessAnimation()))),
-  ChallengeItem(
-      name: 'Answer Page',
-      builder: (_) => const BasePage(
-          title: 'Answer  Animation', child: Center(child: AnswerPage()))),
-];
 
 class MyApp extends StatelessWidget {
   const MyApp({Key? key}) : super(key: key);
@@ -32,24 +13,25 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+      debugShowCheckedModeBanner: false,
       title: 'Flutter Demo',
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
-      home: const MyHomePage(title: 'Flutter Demo Home Page'),
+      home: const ChallengesHomePage(title: 'Flutter Demo Home Page'),
     );
   }
 }
 
-class MyHomePage extends StatefulWidget {
-  const MyHomePage({Key? key, required this.title}) : super(key: key);
+class ChallengesHomePage extends StatefulWidget {
+  const ChallengesHomePage({Key? key, required this.title}) : super(key: key);
   final String title;
 
   @override
-  State<MyHomePage> createState() => _MyHomePageState();
+  State<ChallengesHomePage> createState() => _ChallengesHomePageState();
 }
 
-class _MyHomePageState extends State<MyHomePage> {
+class _ChallengesHomePageState extends State<ChallengesHomePage> {
   @override
   Widget build(BuildContext context) {
     // This method is rerun every time setState is called, for instance as done
@@ -60,23 +42,34 @@ class _MyHomePageState extends State<MyHomePage> {
     // than having to individually change instances of widgets.
     return Scaffold(
       appBar: AppBar(
+        elevation: 0,
+        backgroundColor: Colors.teal.withOpacity(0.85),
         title: Text(widget.title),
       ),
       body: ListView(
-        children: challenges.map((item) {
-          var index = challenges.indexOf(item);
-          return ListTile(
-            leading: Text('Question $index'),
-            trailing: ElevatedButton(
-                onPressed: () => Navigator.of(context)
-                    .push(MaterialPageRoute(builder: item.builder)),
-                child: Text('Answer')),
-            title: Text(item.name),
-            onTap: () => Navigator.of(context)
-                .push(MaterialPageRoute(builder: item.builder)),
-          );
-        }).toList(),
-      ),
+          children: challengesBuilderMap.entries
+              .map(
+                (e) => Card(
+                  child: ListTile(
+                    leading: Text(
+                      textAlign: TextAlign.center,
+                      e.key,
+                      style: StyleClass.tileLeadingTStyle,
+                    ),
+                    trailing: TextButton(
+                        onPressed: () => Navigator.of(context).push(
+                            MaterialPageRoute(builder: e.value.answerBuilder)),
+                        child: const Text(
+                          'Submit Answer',
+                          textAlign: TextAlign.center,
+                          style: StyleClass.tileButtonTStyle,
+                        )),
+                    onTap: () => Navigator.of(context).push(
+                        MaterialPageRoute(builder: e.value.solutionBuilder)),
+                  ),
+                ),
+              )
+              .toList()),
     );
   }
 }
