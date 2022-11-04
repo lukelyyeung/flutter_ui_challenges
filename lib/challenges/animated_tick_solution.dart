@@ -36,35 +36,37 @@ class _AnimatedTickSolutionState extends State<AnimatedTickSolution>
             parent: _animationController,
             curve: const Interval(0.65, 1, curve: Curves.easeInOut)));
 
-    return Column(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        SizedBox(
-          height: 60,
-          width: 60,
-          child: AnimatedBuilder(
-              animation: _animationController,
-              builder: (context, _) {
-                return CustomPaint(
-                    painter: SuccessAnimationPainter(
-                        radiusFactor: radius.value,
-                        tickWidthFactor: width.value));
-              }),
-          // decoration:
-          //     BoxDecoration(shape: BoxShape.circle, border: Border.all(color: Colors.green)),
-        ),
-        const SizedBox(height: 16),
-        ElevatedButton(
-            onPressed: () {
-              if ([AnimationStatus.forward, AnimationStatus.completed]
-                  .contains(_animationController.status)) {
-                _animationController.reverse();
-              } else {
-                _animationController.forward();
-              }
-            },
-            child: const Text("Toggle"))
-      ],
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          SizedBox(
+            height: 60,
+            width: 60,
+            child: AnimatedBuilder(
+                animation: _animationController,
+                builder: (context, _) {
+                  return CustomPaint(
+                      painter: SuccessAnimationPainter(
+                          radiusFactor: radius.value,
+                          tickWidthFactor: width.value));
+                }),
+            // decoration:
+            //     BoxDecoration(shape: BoxShape.circle, border: Border.all(color: Colors.green)),
+          ),
+          const SizedBox(height: 16),
+          ElevatedButton(
+              onPressed: () {
+                if ([AnimationStatus.forward, AnimationStatus.completed]
+                    .contains(_animationController.status)) {
+                  _animationController.reverse();
+                } else {
+                  _animationController.forward();
+                }
+              },
+              child: const Text("Toggle"))
+        ],
+      ),
     );
   }
 }

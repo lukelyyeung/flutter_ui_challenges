@@ -14,25 +14,25 @@ class AnimatedTickAnswer extends StatefulWidget {
 
 class _AnimatedTickAnswerState extends State<AnimatedTickAnswer>
     with SingleTickerProviderStateMixin {
-  late AnimationController animationController;
+  late AnimationController _aniController;
 
   late Animation<double> tickAnimation;
   late Animation<double> doubleAnimation;
 
   @override
   void initState() {
-    animationController = AnimationController(
+    _aniController = AnimationController(
         vsync: this, duration: const Duration(milliseconds: 1800));
 
     tickAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
       CurvedAnimation(
-        parent: animationController,
+        parent: _aniController,
         curve: const Interval(0.55, 0.8, curve: Curves.easeInOutBack),
       ),
     );
 
     doubleAnimation = Tween<double>(begin: 0, end: 45).animate(CurvedAnimation(
-        parent: animationController..forward(),
+        parent: _aniController..forward(),
         curve: const Interval(0.1, 0.5, curve: Curves.elasticInOut)));
 
     // doubleAnimation = Tween<double>(begin: 0, end: 45).animate(CurvedAnimation(
@@ -43,7 +43,7 @@ class _AnimatedTickAnswerState extends State<AnimatedTickAnswer>
 
   @override
   void dispose() {
-    animationController.dispose();
+    _aniController.dispose();
     // TODO: implement dispose
     super.dispose();
   }
@@ -56,54 +56,39 @@ class _AnimatedTickAnswerState extends State<AnimatedTickAnswer>
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Stack(
-            children: [
-              // TweenAnimationBuilder(
-              //   tween: doubleTween,
-              //   duration: const Duration(seconds: 3),
-              //   builder: (context, double value, child) => Container(
-              //       height: value,
-              //       width: value,
-              //       decoration: const BoxDecoration(color: Colors.indigo)),
-              // ),
-              AnimatedBuilder(
-                animation: animationController,
-                builder: (context, child) {
-                  return Stack(
-                    children: [
-                      SizedBox(
-                        height: 100,
-                        width: 100,
-                        child: CustomPaint(
-                          painter:
-                              CirclePainter(listener: doubleAnimation.value),
-                        ),
-                      ),
-                      SizedBox(
-                        height: 100,
-                        width: 100,
-                        child: CustomPaint(
-                          painter: TickPainter(progress: tickAnimation.value),
-                        ),
-                      ),
-                    ],
-                  );
-                },
-              ),
-              // AnimatedBuilder(
-              //   animation: animation,
-              //   builder: (context, child) {
-              //     return Container(
-              //       height: 500,
-              //       width: 500,
-              //       child: CustomPaint(
-              //         painter: CirclePainter(listener: animation.value),
-              //       ),
-              //     );
-              //   },
-              // )
-            ],
+          AnimatedBuilder(
+            animation: _aniController,
+            builder: (context, child) {
+              return Stack(
+                children: [
+                  SizedBox(
+                    height: 100,
+                    width: 100,
+                    child: CustomPaint(
+                      painter: CirclePainter(listener: doubleAnimation.value),
+                    ),
+                  ),
+                  SizedBox(
+                    height: 100,
+                    width: 100,
+                    child: CustomPaint(
+                      painter: TickPainter(progress: tickAnimation.value),
+                    ),
+                  ),
+                ],
+              );
+            },
           ),
+          SizedBox(height: 30),
+          ElevatedButton(
+              onPressed: () {
+                if (_aniController.isCompleted) {
+                  _aniController.reverse();
+                  return;
+                }
+                _aniController.forward();
+              },
+              child: Text('Toggle')),
         ],
       ),
     );
