@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:ui_challenge/answer_page.dart';
+import 'package:ui_challenge/challenges/animated_button.dart';
 import 'package:ui_challenge/challenges/success_animation.dart';
 import 'package:ui_challenge/base_page.dart';
 
@@ -20,6 +21,11 @@ final List<ChallengeItem> challenges = [
       builder: (_) => const BasePage(
           title: 'Success Animation',
           child: Center(child: SuccessAnimation()))),
+  ChallengeItem(
+      name: 'Animated Button',
+      builder: (_) => const BasePage(
+          title: 'Animated Button',
+          child: Center(child: AnimatedButton()))),
   ChallengeItem(
       name: 'Answer Page',
       builder: (_) => const BasePage(
