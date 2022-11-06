@@ -1,6 +1,7 @@
 import 'dart:math';
 
 import 'package:flutter/material.dart';
+import 'package:ui_challenge/const/theme.dart';
 
 class AnimatedProgressButtonAnswer extends StatefulWidget {
   const AnimatedProgressButtonAnswer({super.key});
@@ -22,27 +23,92 @@ class _AnimatedProgressButtonAnswerState
   late Animation<double> widthAni;
   late Animation<double> heightAni;
   late Animation<double> strokeWidthAni;
+  late Animation<Offset> uploadSlideAni;
+  late Animation<double> uploadOpacity;
+  late Animation<Offset> loadingSlideAni;
+  late Animation<double> loadingOpacityAni;
+  late Animation<Offset> loadedSlideAni;
+  late Animation<double> loadedOpacityAni;
+
+  Interval checkPointStart = const Interval(0.1, 0.3);
+  Interval checkPointMid = const Interval(0.3, 0.7);
+  Interval checkPointEnd = const Interval(0.7, 0.9);
+
   @override
   void initState() {
     // TODO: implement initState
-    _aniController =
-        AnimationController(vsync: this, duration: const Duration(seconds: 3));
-    frame1Ani = Tween<double>(begin: 0, end: 100).animate(CurvedAnimation(
-        parent: _aniController..forward(),
-        curve: const Interval(0.0, 0.20, curve: Curves.ease)));
-    frame2Ani = Tween<double>(begin: 0, end: 100).animate(CurvedAnimation(
-        parent: _aniController..forward(),
-        curve: const Interval(0.20, 0.50, curve: Curves.ease)));
-    frame3Ani = Tween<double>(begin: 0, end: 100).animate(CurvedAnimation(
-        parent: _aniController..forward(),
-        curve: const Interval(0.50, 0.80, curve: Curves.ease)));
-    widthAni = Tween<double>(begin: 220, end: 250).animate(CurvedAnimation(
-        parent: _aniController..forward(),
-        curve: const Interval(0.75, 1.0, curve: Curves.elasticInOut)));
 
-    strokeWidthAni = Tween<double>(begin: 6, end: 0).animate(CurvedAnimation(
-        parent: _aniController..forward(),
-        curve: const Interval(0.65, 0.90, curve: Curves.easeInOut)));
+    _aniController = AnimationController(
+        vsync: this, duration: const Duration(milliseconds: 3000));
+    frame1Ani = Tween<double>(begin: 0, end: 100).animate(CurvedAnimation(
+      parent: _aniController..forward(),
+      curve: const Interval(0.0, 0.15, curve: Curves.easeInCirc),
+    ));
+    frame2Ani = Tween<double>(begin: 0, end: 100).animate(CurvedAnimation(
+      parent: _aniController..forward(),
+      curve: const Interval(0.16, 0.30, curve: Curves.ease),
+    ));
+    frame3Ani = Tween<double>(begin: 0, end: 100).animate(CurvedAnimation(
+      parent: _aniController..forward(),
+      curve: const Interval(0.31, 0.70, curve: Curves.ease),
+    ));
+    widthAni = Tween<double>(begin: 230, end: 270).animate(CurvedAnimation(
+      parent: _aniController..forward(),
+      curve: const Interval(0.70, 0.875, curve: Curves.elasticInOut),
+    ));
+
+    strokeWidthAni = Tween<double>(begin: 15, end: 0).animate(CurvedAnimation(
+      parent: _aniController..forward(),
+      curve: const Interval(0.70, 1.0, curve: Curves.easeInOut),
+    ));
+    uploadSlideAni =
+        Tween<Offset>(begin: const Offset(0, 0), end: const Offset(0, -1))
+            .animate(CurvedAnimation(
+      parent: _aniController,
+      curve: const Interval(0.25, 0.35, curve: Curves.easeIn),
+    ));
+    uploadOpacity = Tween<double>(begin: 1.0, end: 0.0).animate(CurvedAnimation(
+      parent: _aniController..forward(),
+      curve: const Interval(0.25, 0.35, curve: Curves.ease),
+    ));
+    loadingSlideAni = TweenSequence<Offset>([
+      TweenSequenceItem(
+          tween:
+              Tween<Offset>(begin: const Offset(0, 1), end: const Offset(0, 0))
+                  .chain(CurveTween(curve: Curves.easeIn)),
+          weight: 30),
+      TweenSequenceItem(
+          tween:
+              Tween<Offset>(begin: const Offset(0, 0), end: const Offset(0, 0)),
+          weight: 60),
+      TweenSequenceItem(
+          tween: Tween<Offset>(
+              begin: const Offset(0, 0), end: const Offset(0, -1)),
+          weight: 10),
+    ]).animate(CurvedAnimation(
+        parent: _aniController..forward(), curve: const Interval(0.30, 0.80)));
+
+    loadingOpacityAni = TweenSequence<double>([
+      TweenSequenceItem(
+          tween: Tween<double>(begin: 0.0, end: 1.0)
+              .chain(CurveTween(curve: Curves.easeIn)),
+          weight: 20),
+      TweenSequenceItem(tween: Tween<double>(begin: 1.0, end: 1.0), weight: 50),
+      TweenSequenceItem(tween: Tween<double>(begin: 1.0, end: 0.0), weight: 30),
+    ]).animate(CurvedAnimation(
+        parent: _aniController..forward(), curve: const Interval(0.35, 0.85)));
+
+    loadedSlideAni =
+        Tween<Offset>(begin: const Offset(0, 1), end: const Offset(0, 0))
+            .animate(CurvedAnimation(
+                parent: _aniController..forward(),
+                curve: const Interval(0.75, 0.9, curve: Curves.easeIn)));
+
+    loadedOpacityAni = Tween<double>(begin: 0.0, end: 1.0)
+        .chain(CurveTween(curve: Curves.easeIn))
+        .animate(CurvedAnimation(
+            parent: _aniController..forward(),
+            curve: const Interval(0.80, 0.90, curve: Curves.easeIn)));
 
     super.initState();
   }
@@ -52,6 +118,8 @@ class _AnimatedProgressButtonAnswerState
     _aniController.dispose();
     super.dispose();
   }
+
+  bool isToogle = false;
 
   @override
   Widget build(BuildContext context) {
@@ -64,56 +132,104 @@ class _AnimatedProgressButtonAnswerState
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: <Widget>[
-          Stack(
-            alignment: Alignment.center,
-            children: [
-              AnimatedBuilder(
-                animation: frame1Ani,
-                builder: (context, child) {
-                  return SizedBox(
-                    height: 100 - 10,
-                    width: widthAni.value - 10,
-                    child: CustomPaint(
-                      painter: ProgressPainter(
-                        frame1Progress: frame1Ani.value,
-                        frame2Progress: frame2Ani.value,
-                        frame3Progress: frame3Ani.value,
-                        strokeWidth: strokeWidthAni.value,
-                      ),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: const [
+          AnimatedBuilder(
+            animation: _aniController,
+            builder: (context, child) {
+              return SizedBox(
+                height: 80,
+                width: widthAni.value,
+                child: CustomPaint(
+                  painter: ProgressPainter(
+                    frame1Progress: frame1Ani.value,
+                    frame2Progress: frame2Ani.value,
+                    frame3Progress: frame3Ani.value,
+                    strokeWidth: strokeWidthAni.value,
+                  ),
+                  child: Stack(
+                    alignment: Alignment.center,
+                    children: [
+                      WordTransition(
+                        opacityAni: uploadOpacity,
+                        slidingAni: uploadSlideAni,
+                        widgetList: const <Widget>[
                           Icon(
                             Icons.arrow_upward,
-                            size: 45,
+                            size: 55,
                             color: Colors.white,
                           ),
                           Text(
                             'Upload',
-                            style: TextStyle(
-                                fontSize: 25,
-                                color: Colors.white,
-                                fontWeight: FontWeight.bold),
+                            style: StyleClass.tileButtonTStyle,
                           ),
                         ],
                       ),
-                    ),
-                  );
-                },
-              ),
-            ],
+                      WordTransition(
+                        opacityAni: loadingOpacityAni,
+                        slidingAni: loadingSlideAni,
+                        widgetList: const <Widget>[
+                          Text(
+                            'Uploading',
+                            style: StyleClass.tileButtonTStyle,
+                          ),
+                        ],
+                      ),
+                      WordTransition(
+                          opacityAni: loadedOpacityAni,
+                          slidingAni: loadedSlideAni,
+                          widgetList: const <Widget>[
+                            Text(
+                              'Uploaded',
+                              style: StyleClass.tileButtonTStyle,
+                            )
+                          ])
+                    ],
+                  ),
+                ),
+              );
+            },
           ),
           const SizedBox(height: 30),
           ElevatedButton(
               onPressed: () {
                 if (_aniController.isCompleted) {
                   _aniController.reverse();
+                  isToogle = true;
                   return;
                 }
                 _aniController.forward();
+                isToogle = false;
               },
               child: const Text('Toggle'))
         ],
+      ),
+    );
+  }
+}
+
+class WordTransition extends StatelessWidget {
+  const WordTransition(
+      {Key? key,
+      required this.opacityAni,
+      required this.slidingAni,
+      required this.widgetList})
+      : super(key: key);
+
+  final Animation<double> opacityAni;
+  final Animation<Offset> slidingAni;
+  final List<Widget> widgetList;
+
+  @override
+  Widget build(BuildContext context) {
+    return FadeTransition(
+      opacity: opacityAni,
+      child: SlideTransition(
+        textDirection: TextDirection.rtl,
+        position: slidingAni,
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: widgetList,
+        ),
       ),
     );
   }
@@ -133,8 +249,8 @@ class ProgressPainter extends CustomPainter {
   });
   @override
   void paint(Canvas canvas, Size size) {
-    double height = size.height - 10;
-    double width = size.width - 10;
+    double height = size.height;
+    double width = size.width;
     double radius = height / 2;
     Offset startPoint = Offset(radius + (width * 0.1), 0);
 
@@ -176,13 +292,12 @@ class ProgressPainter extends CustomPainter {
           .extractPath(0, pathList[i].length * (progressList[i] / 100));
     }
 
-    canvas.drawPath(buttonPath, buttonPaint);
-
     for (var i = 0; i < drawPathList.length; i++) {
       if (progressList[i] >= 1) {
         canvas.drawPath(drawPathList[i], borderPaint);
       }
     }
+    canvas.drawPath(buttonPath, buttonPaint);
   }
 
   @override
