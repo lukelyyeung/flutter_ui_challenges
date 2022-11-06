@@ -2,6 +2,6 @@ import 'package:flutter/material.dart';
 
 class StyleClass {
   static const TextStyle tileButtonTStyle =
-      TextStyle(fontSize: 35, color: Colors.white, fontWeight: FontWeight.bold);
-  static const TextStyle tileLeadingTStyle = TextStyle();
+      TextStyle(fontSize: 15, color: Colors.teal, fontWeight: FontWeight.bold);
+  static const TextStyle tileLeadingTStyle = TextStyle(fontSize: 15);
 }
