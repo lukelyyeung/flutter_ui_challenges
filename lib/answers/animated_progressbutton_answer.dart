@@ -34,6 +34,9 @@ class _AnimatedProgressButtonAnswerState
   Interval checkPointMid = const Interval(0.3, 0.7);
   Interval checkPointEnd = const Interval(0.7, 0.9);
 
+  TextStyle tileButtonTStyle =
+      TextStyle(fontSize: 35, color: Colors.white, fontWeight: FontWeight.bold);
+
   @override
   void initState() {
     // TODO: implement initState
@@ -151,7 +154,7 @@ class _AnimatedProgressButtonAnswerState
                       WordTransition(
                         opacityAni: uploadOpacity,
                         slidingAni: uploadSlideAni,
-                        widgetList: const <Widget>[
+                        widgetList: <Widget>[
                           Icon(
                             Icons.arrow_upward,
                             size: 55,
@@ -159,27 +162,27 @@ class _AnimatedProgressButtonAnswerState
                           ),
                           Text(
                             'Upload',
-                            style: StyleClass.tileButtonTStyle,
+                            style: tileButtonTStyle,
                           ),
                         ],
                       ),
                       WordTransition(
                         opacityAni: loadingOpacityAni,
                         slidingAni: loadingSlideAni,
-                        widgetList: const <Widget>[
+                        widgetList: <Widget>[
                           Text(
                             'Uploading',
-                            style: StyleClass.tileButtonTStyle,
+                            style: tileButtonTStyle,
                           ),
                         ],
                       ),
                       WordTransition(
                           opacityAni: loadedOpacityAni,
                           slidingAni: loadedSlideAni,
-                          widgetList: const <Widget>[
+                          widgetList: <Widget>[
                             Text(
                               'Uploaded',
-                              style: StyleClass.tileButtonTStyle,
+                              style: tileButtonTStyle,
                             )
                           ])
                     ],

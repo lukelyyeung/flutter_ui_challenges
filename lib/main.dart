@@ -56,7 +56,7 @@ class _ChallengesHomePageState extends State<ChallengesHomePage> {
                         child: const Text(
                           'Submit Answer',
                           textAlign: TextAlign.center,
-                          style: StyleClass.tileButtonTStyle,
+                          style: StyleClass.homeButtonTStyle,
                         )),
                     onTap: () => Navigator.of(context).push(
                         MaterialPageRoute(builder: e.value.solutionBuilder)),
