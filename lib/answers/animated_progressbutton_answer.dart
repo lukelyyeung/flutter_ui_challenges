@@ -1,7 +1,8 @@
+//TODO: streamline animationFlow, fix CustomPaintPath
+
 import 'dart:math';
 
 import 'package:flutter/material.dart';
-import 'package:ui_challenge/const/theme.dart';
 
 class AnimatedProgressButtonAnswer extends StatefulWidget {
   const AnimatedProgressButtonAnswer({super.key});
@@ -34,8 +35,8 @@ class _AnimatedProgressButtonAnswerState
   Interval checkPointMid = const Interval(0.3, 0.7);
   Interval checkPointEnd = const Interval(0.7, 0.9);
 
-  TextStyle tileButtonTStyle =
-      TextStyle(fontSize: 35, color: Colors.white, fontWeight: FontWeight.bold);
+  TextStyle tileButtonTStyle = const TextStyle(
+      fontSize: 35, color: Colors.white, fontWeight: FontWeight.bold);
 
   @override
   void initState() {
@@ -43,16 +44,14 @@ class _AnimatedProgressButtonAnswerState
 
     _aniController = AnimationController(
         vsync: this, duration: const Duration(milliseconds: 3000));
-    frame1Ani = Tween<double>(begin: 0, end: 100).animate(CurvedAnimation(
-      parent: _aniController..forward(),
-      curve: const Interval(0.0, 0.15, curve: Curves.easeInCirc),
-    ));
+    frame1Ani = Tween<double>(begin: 0, end: 100).animate(_aniController);
+
     frame2Ani = Tween<double>(begin: 0, end: 100).animate(CurvedAnimation(
-      parent: _aniController..forward(),
+      parent: _aniController,
       curve: const Interval(0.16, 0.30, curve: Curves.ease),
     ));
     frame3Ani = Tween<double>(begin: 0, end: 100).animate(CurvedAnimation(
-      parent: _aniController..forward(),
+      parent: _aniController,
       curve: const Interval(0.31, 0.70, curve: Curves.ease),
     ));
     widthAni = Tween<double>(begin: 230, end: 270).animate(CurvedAnimation(
@@ -60,9 +59,9 @@ class _AnimatedProgressButtonAnswerState
       curve: const Interval(0.70, 0.875, curve: Curves.elasticInOut),
     ));
 
-    strokeWidthAni = Tween<double>(begin: 15, end: 0).animate(CurvedAnimation(
+    strokeWidthAni = Tween<double>(begin: 11, end: 0).animate(CurvedAnimation(
       parent: _aniController..forward(),
-      curve: const Interval(0.70, 1.0, curve: Curves.easeInOut),
+      curve: const Interval(0.70, 0.8, curve: Curves.easeInOut),
     ));
     uploadSlideAni =
         Tween<Offset>(begin: const Offset(0, 0), end: const Offset(0, -1))
@@ -129,80 +128,80 @@ class _AnimatedProgressButtonAnswerState
     double height = MediaQuery.of(context).size.height;
     double width = MediaQuery.of(context).size.width;
 
-    return SizedBox(
+    return Container(
+      color: Colors.black87,
       height: height,
       width: width,
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: <Widget>[
-          AnimatedBuilder(
-            animation: _aniController,
-            builder: (context, child) {
-              return SizedBox(
-                height: 80,
-                width: widthAni.value,
-                child: CustomPaint(
-                  painter: ProgressPainter(
-                    frame1Progress: frame1Ani.value,
-                    frame2Progress: frame2Ani.value,
-                    frame3Progress: frame3Ani.value,
-                    strokeWidth: strokeWidthAni.value,
-                  ),
-                  child: Stack(
-                    alignment: Alignment.center,
-                    children: [
-                      WordTransition(
-                        opacityAni: uploadOpacity,
-                        slidingAni: uploadSlideAni,
-                        widgetList: <Widget>[
-                          Icon(
-                            Icons.arrow_upward,
-                            size: 55,
-                            color: Colors.white,
-                          ),
-                          Text(
-                            'Upload',
-                            style: tileButtonTStyle,
-                          ),
-                        ],
-                      ),
-                      WordTransition(
-                        opacityAni: loadingOpacityAni,
-                        slidingAni: loadingSlideAni,
-                        widgetList: <Widget>[
-                          Text(
-                            'Uploading',
-                            style: tileButtonTStyle,
-                          ),
-                        ],
-                      ),
-                      WordTransition(
-                          opacityAni: loadedOpacityAni,
-                          slidingAni: loadedSlideAni,
+          InkWell(
+            onTap: () {
+              if (_aniController.isCompleted) {
+                _aniController.reverse();
+                isToogle = true;
+                return;
+              }
+              _aniController.forward();
+              isToogle = false;
+            },
+            child: AnimatedBuilder(
+              animation: _aniController,
+              builder: (context, child) {
+                return Container(
+                  height: 80,
+                  width: widthAni.value,
+                  child: CustomPaint(
+                    painter: ProgressPainter(
+                      frame1Progress: frame1Ani.value,
+                      frame2Progress: frame2Ani.value,
+                      frame3Progress: frame3Ani.value,
+                      strokeWidth: strokeWidthAni.value,
+                    ),
+                    child: Stack(
+                      alignment: Alignment.center,
+                      children: [
+                        WordTransition(
+                          opacityAni: uploadOpacity,
+                          slidingAni: uploadSlideAni,
+                          widgetList: <Widget>[
+                            const Icon(
+                              Icons.arrow_upward,
+                              size: 55,
+                              color: Colors.white,
+                            ),
+                            Text(
+                              'Upload',
+                              style: tileButtonTStyle,
+                            ),
+                          ],
+                        ),
+                        WordTransition(
+                          opacityAni: loadingOpacityAni,
+                          slidingAni: loadingSlideAni,
                           widgetList: <Widget>[
                             Text(
-                              'Uploaded',
+                              'Uploading',
                               style: tileButtonTStyle,
-                            )
-                          ])
-                    ],
+                            ),
+                          ],
+                        ),
+                        WordTransition(
+                            opacityAni: loadedOpacityAni,
+                            slidingAni: loadedSlideAni,
+                            widgetList: <Widget>[
+                              Text(
+                                'Uploaded',
+                                style: tileButtonTStyle,
+                              )
+                            ])
+                      ],
+                    ),
                   ),
-                ),
-              );
-            },
-          ),
-          const SizedBox(height: 30),
-          ElevatedButton(
-              onPressed: () {
-                if (_aniController.isCompleted) {
-                  _aniController.reverse();
-                  isToogle = true;
-                  return;
-                }
-                _aniController.forward();
-                isToogle = false;
+                );
               },
-              child: const Text('Toggle'))
+            ),
+          ),
         ],
       ),
     );
@@ -256,6 +255,8 @@ class ProgressPainter extends CustomPainter {
     double width = size.width;
     double radius = height / 2;
     Offset startPoint = Offset(radius + (width * 0.1), 0);
+    Offset archEndLeft = Offset(radius, height);
+    Offset archEndRight = Offset(width - radius, 0);
 
     Rect rectCL = Rect.fromCenter(
         center: Offset(height / 2, height / 2),
@@ -269,7 +270,7 @@ class ProgressPainter extends CustomPainter {
     Paint borderPaint = Paint()
       ..color = Colors.grey.shade300
       ..style = PaintingStyle.stroke
-      ..strokeWidth = strokeWidth
+      ..strokeWidth = 8
       ..strokeCap = StrokeCap.butt;
 
     Paint buttonPaint = Paint()
@@ -280,26 +281,18 @@ class ProgressPainter extends CustomPainter {
     Path buttonPath = Path()
       ..moveTo(startPoint.dx, startPoint.dy)
       ..lineTo(radius, 0)
-      ..addArc(rectCL, -pi * 0.5, -pi)
+      ..arcToPoint(archEndLeft, radius: Radius.circular(1), clockwise: false)
       ..lineTo(width - radius, height)
-      ..addArc(rectCR, pi * 0.5, -pi)
+      ..arcToPoint(archEndRight, radius: Radius.circular(1), clockwise: false)
       ..lineTo(radius, 0);
+    // ..lineTo(width, 0);
 
-    var buttonPathMetrics = buttonPath.computeMetrics();
-    var pathList = buttonPathMetrics.toList();
-    var progressList = [frame1Progress, frame2Progress, frame3Progress];
-    var drawPathList = List.generate(pathList.length, (index) => Path());
+    var PathMetrics = buttonPath.computeMetrics();
+    var borderPath = PathMetrics.first;
+    var progressPath =
+        borderPath.extractPath(0, borderPath.length * frame1Progress / 100);
 
-    for (var i = 0; i < drawPathList.length; i++) {
-      drawPathList[i] = pathList[i]
-          .extractPath(0, pathList[i].length * (progressList[i] / 100));
-    }
-
-    for (var i = 0; i < drawPathList.length; i++) {
-      if (progressList[i] >= 1) {
-        canvas.drawPath(drawPathList[i], borderPaint);
-      }
-    }
+    canvas.drawPath(progressPath, borderPaint);
     canvas.drawPath(buttonPath, buttonPaint);
   }
 
