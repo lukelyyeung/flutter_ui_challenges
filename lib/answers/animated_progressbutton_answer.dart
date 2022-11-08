@@ -47,25 +47,30 @@ class _AnimatedProgressButtonAnswerState
         vsync: this, duration: const Duration(milliseconds: 1500))
       ..addListener(() {
         if (_progressAniController.value > 0.1 &&
+            _progressAniController.value < 0.90 &&
             _progressAniController.status == AnimationStatus.forward) {
           _toLoadController.forward();
-          _loadingController.forward();
+          _loadingController.forward(from: 0.2);
         }
         if (_progressAniController.value > 0.95 &&
             _progressAniController.status == AnimationStatus.forward) {
           _loadedController.forward();
-          _loadingController.animateTo(1.0);
+          _loadingController.animateTo(1.0,
+              duration: const Duration(milliseconds: 150));
         }
 
         if (_progressAniController.value < 0.1 &&
             _progressAniController.status == AnimationStatus.reverse) {
           _toLoadController.reverse();
-          _loadingController.animateBack(0.1);
+          _loadingController.animateTo(0.0,
+              duration: const Duration(milliseconds: 150));
         }
         if (_progressAniController.value < 1.0 &&
+            _progressAniController.value > 0.1 &&
             _progressAniController.status == AnimationStatus.reverse) {
           _loadedController.reverse();
-          _loadingController.animateTo(0.8);
+          _loadingController.animateTo(0.6,
+              duration: const Duration(milliseconds: 150));
         }
       });
 
@@ -75,7 +80,7 @@ class _AnimatedProgressButtonAnswerState
     _loadedController = AnimationController(
         vsync: this, duration: const Duration(milliseconds: 200));
     _loadingController = AnimationController(
-        vsync: this, duration: const Duration(milliseconds: 1500));
+        vsync: this, duration: Duration(microseconds: 5000));
 
     progressAni =
         Tween<double>(begin: 0, end: 100).animate(_progressAniController);
