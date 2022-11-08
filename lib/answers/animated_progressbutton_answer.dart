@@ -20,9 +20,10 @@ class _AnimatedProgressButtonAnswerState
   late AnimationController _toLoadController;
   late AnimationController _loadedController;
   late AnimationController _loadingController;
+  late AnimationController _buttonWidthController;
 
   late Animation<double> progressAni;
-  late Animation<double> widthAni;
+  late Animation<double> buttonWidthAni;
   late Animation<double> heightAni;
   late Animation<double> strokeWidthAni;
   late Animation<Offset> uploadSlideAni;
@@ -31,6 +32,9 @@ class _AnimatedProgressButtonAnswerState
   late Animation<double> loadingOpacityAni;
   late Animation<Offset> loadedSlideAni;
   late Animation<double> loadedOpacityAni;
+  late RenderBox buttonBox;
+  double? _maxWidth = 280;
+  final GlobalKey _buttonKey = GlobalKey();
 
   TextStyle tileButtonTStyle = const TextStyle(
       fontSize: 35, color: Colors.white, fontWeight: FontWeight.bold);
@@ -52,27 +56,29 @@ class _AnimatedProgressButtonAnswerState
             _progressAniController.status == AnimationStatus.forward) {
           _loadedController.forward();
           _loadingController.animateTo(1.0,
-              duration: const Duration(milliseconds: 150));
+              duration: const Duration(milliseconds: 200));
         }
 
         if (_progressAniController.value < 0.1 &&
             _progressAniController.status == AnimationStatus.reverse) {
           _toLoadController.reverse();
           _loadingController.animateTo(0.0,
-              duration: const Duration(milliseconds: 150));
+              duration: const Duration(milliseconds: 200));
         }
         if (_progressAniController.value < 1.0 &&
             _progressAniController.value > 0.1 &&
             _progressAniController.status == AnimationStatus.reverse) {
           _loadedController.reverse();
           _loadingController.animateTo(0.6,
-              duration: const Duration(milliseconds: 150));
+              duration: const Duration(milliseconds: 200));
         }
       });
 
     _toLoadController = AnimationController(
         vsync: this, duration: const Duration(milliseconds: 200));
 
+    _buttonWidthController = AnimationController(
+        vsync: this, duration: const Duration(milliseconds: 200));
     _loadedController = AnimationController(
         vsync: this, duration: const Duration(milliseconds: 200));
     _loadingController = AnimationController(
@@ -80,11 +86,6 @@ class _AnimatedProgressButtonAnswerState
 
     progressAni =
         Tween<double>(begin: 0, end: 100).animate(_progressAniController);
-
-    widthAni = Tween<double>(begin: 230, end: 270).animate(CurvedAnimation(
-      parent: _progressAniController,
-      curve: const Interval(0.70, 0.875, curve: Curves.elasticInOut),
-    ));
 
     strokeWidthAni =
         Tween<double>(begin: 11, end: 0).animate(_loadedController);
@@ -100,7 +101,7 @@ class _AnimatedProgressButtonAnswerState
       TweenSequenceItem(
           tween:
               Tween<Offset>(begin: const Offset(0, 1), end: const Offset(0, 0)),
-          weight: 10),
+          weight: 20),
       TweenSequenceItem(
           tween:
               Tween<Offset>(begin: const Offset(0, 0), end: const Offset(0, 0)),
@@ -108,12 +109,13 @@ class _AnimatedProgressButtonAnswerState
       TweenSequenceItem(
           tween: Tween<Offset>(
               begin: const Offset(0, 0), end: const Offset(0, -1)),
-          weight: 10),
+          weight: 20),
     ]).animate(_loadingController);
 
     loadingOpacityAni = TweenSequence<double>([
-      TweenSequenceItem(tween: Tween<double>(begin: 0.0, end: 1.0), weight: 10),
-      TweenSequenceItem(tween: Tween<double>(begin: 1.0, end: 0.0), weight: 10),
+      TweenSequenceItem(tween: Tween<double>(begin: 0.0, end: 1.0), weight: 20),
+      TweenSequenceItem(tween: Tween<double>(begin: 1.0, end: 1.0), weight: 80),
+      TweenSequenceItem(tween: Tween<double>(begin: 1.0, end: 0.0), weight: 20),
     ]).animate(_loadingController);
 
     loadedSlideAni =
@@ -124,6 +126,11 @@ class _AnimatedProgressButtonAnswerState
         Tween<double>(begin: 0.0, end: 1.0).animate(_loadedController);
 
     super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final RenderBox renderBox =
+          _buttonKey.currentContext?.findRenderObject() as RenderBox;
+      _maxWidth = renderBox.size.width;
+    });
   }
 
   @override
@@ -168,11 +175,10 @@ class _AnimatedProgressButtonAnswerState
             child: AnimatedBuilder(
               animation: _progressAniController,
               builder: (context, child) {
-                return Container(
-                  // decoration: const BoxDecoration(),
-                  // clipBehavior: Clip.hardEdge,
+                return AnimatedContainer(
+                  duration: const Duration(milliseconds: 300),
                   height: 80,
-                  width: widthAni.value,
+                  width: _progressAniController.value > 0.9 ? _maxWidth : 220,
                   child: CustomPaint(
                     painter: ProgressPainter(
                       progress: progressAni.value,
