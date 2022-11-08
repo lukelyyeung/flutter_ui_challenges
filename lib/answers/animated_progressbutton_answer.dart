@@ -32,10 +32,6 @@ class _AnimatedProgressButtonAnswerState
   late Animation<Offset> loadedSlideAni;
   late Animation<double> loadedOpacityAni;
 
-  Interval checkPointStart = const Interval(0.1, 0.3);
-  Interval checkPointMid = const Interval(0.3, 0.7);
-  Interval checkPointEnd = const Interval(0.7, 0.9);
-
   TextStyle tileButtonTStyle = const TextStyle(
       fontSize: 35, color: Colors.white, fontWeight: FontWeight.bold);
 
@@ -80,7 +76,7 @@ class _AnimatedProgressButtonAnswerState
     _loadedController = AnimationController(
         vsync: this, duration: const Duration(milliseconds: 200));
     _loadingController = AnimationController(
-        vsync: this, duration: Duration(microseconds: 5000));
+        vsync: this, duration: const Duration(microseconds: 5000));
 
     progressAni =
         Tween<double>(begin: 0, end: 100).animate(_progressAniController);
@@ -117,7 +113,6 @@ class _AnimatedProgressButtonAnswerState
 
     loadingOpacityAni = TweenSequence<double>([
       TweenSequenceItem(tween: Tween<double>(begin: 0.0, end: 1.0), weight: 10),
-      TweenSequenceItem(tween: Tween<double>(begin: 1.0, end: 1.0), weight: 80),
       TweenSequenceItem(tween: Tween<double>(begin: 1.0, end: 0.0), weight: 10),
     ]).animate(_loadingController);
 

@@ -50,13 +50,17 @@ class _ChallengesHomePageState extends State<ChallengesHomePage> {
                       e.key,
                       style: StyleClass.tileLeadingTStyle,
                     ),
-                    trailing: TextButton(
+                    trailing: ElevatedButton(
+                        style: ButtonStyle(
+                            backgroundColor:
+                                MaterialStateProperty.all(Colors.black)),
                         onPressed: () => Navigator.of(context).push(
                             MaterialPageRoute(builder: e.value.answerBuilder)),
-                        child: const Text(
-                          'Submit Answer',
+                        child: Text(
+                          'Submit',
                           textAlign: TextAlign.center,
-                          style: StyleClass.homeButtonTStyle,
+                          style: StyleClass.homeButtonTStyle
+                              .copyWith(color: Colors.white),
                         )),
                     onTap: () => Navigator.of(context).push(
                         MaterialPageRoute(builder: e.value.solutionBuilder)),

@@ -32,7 +32,7 @@ class _AnimatedTickAnswerState extends State<AnimatedTickAnswer>
     );
 
     doubleAnimation = Tween<double>(begin: 0, end: 45).animate(CurvedAnimation(
-        parent: _aniController..forward(),
+        parent: _aniController,
         curve: const Interval(0.1, 0.5, curve: Curves.elasticInOut)));
 
     // doubleAnimation = Tween<double>(begin: 0, end: 45).animate(CurvedAnimation(
