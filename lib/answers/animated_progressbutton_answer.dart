@@ -15,12 +15,13 @@ class AnimatedProgressButtonAnswer extends StatefulWidget {
 }
 
 class _AnimatedProgressButtonAnswerState
-    extends State<AnimatedProgressButtonAnswer>
-    with SingleTickerProviderStateMixin {
-  late AnimationController _aniController;
-  late Animation<double> frame1Ani;
-  late Animation<double> frame2Ani;
-  late Animation<double> frame3Ani;
+    extends State<AnimatedProgressButtonAnswer> with TickerProviderStateMixin {
+  late AnimationController _progressAniController;
+  late AnimationController _toLoadController;
+  late AnimationController _loadedController;
+  late AnimationController _loadingController;
+
+  late Animation<double> progressAni;
   late Animation<double> widthAni;
   late Animation<double> heightAni;
   late Animation<double> strokeWidthAni;
@@ -42,82 +43,101 @@ class _AnimatedProgressButtonAnswerState
   void initState() {
     // TODO: implement initState
 
-    _aniController = AnimationController(
-        vsync: this, duration: const Duration(milliseconds: 3000));
-    frame1Ani = Tween<double>(begin: 0, end: 100).animate(_aniController);
+    _progressAniController = AnimationController(
+        vsync: this, duration: const Duration(milliseconds: 1500))
+      ..addListener(() {
+        if (_progressAniController.value > 0.1 &&
+            _progressAniController.status == AnimationStatus.forward) {
+          _toLoadController.forward();
+          _loadingController.forward();
+        }
+        if (_progressAniController.value > 0.95 &&
+            _progressAniController.status == AnimationStatus.forward) {
+          _loadedController.forward();
+          _loadingController.animateTo(1.0);
+        }
 
-    frame2Ani = Tween<double>(begin: 0, end: 100).animate(CurvedAnimation(
-      parent: _aniController,
-      curve: const Interval(0.16, 0.30, curve: Curves.ease),
-    ));
-    frame3Ani = Tween<double>(begin: 0, end: 100).animate(CurvedAnimation(
-      parent: _aniController,
-      curve: const Interval(0.31, 0.70, curve: Curves.ease),
-    ));
+        if (_progressAniController.value < 0.1 &&
+            _progressAniController.status == AnimationStatus.reverse) {
+          _toLoadController.reverse();
+          _loadingController.animateBack(0.1);
+        }
+        if (_progressAniController.value < 1.0 &&
+            _progressAniController.status == AnimationStatus.reverse) {
+          _loadedController.reverse();
+          _loadingController.animateTo(0.8);
+        }
+      });
+
+    _toLoadController = AnimationController(
+        vsync: this, duration: const Duration(milliseconds: 200));
+
+    _loadedController = AnimationController(
+        vsync: this, duration: const Duration(milliseconds: 200));
+    _loadingController = AnimationController(
+        vsync: this, duration: const Duration(milliseconds: 1500));
+
+    progressAni =
+        Tween<double>(begin: 0, end: 100).animate(_progressAniController);
+
     widthAni = Tween<double>(begin: 230, end: 270).animate(CurvedAnimation(
-      parent: _aniController..forward(),
+      parent: _progressAniController,
       curve: const Interval(0.70, 0.875, curve: Curves.elasticInOut),
     ));
 
-    strokeWidthAni = Tween<double>(begin: 11, end: 0).animate(CurvedAnimation(
-      parent: _aniController..forward(),
-      curve: const Interval(0.70, 0.8, curve: Curves.easeInOut),
-    ));
+    strokeWidthAni =
+        Tween<double>(begin: 11, end: 0).animate(_loadedController);
+
     uploadSlideAni =
         Tween<Offset>(begin: const Offset(0, 0), end: const Offset(0, -1))
-            .animate(CurvedAnimation(
-      parent: _aniController,
-      curve: const Interval(0.25, 0.35, curve: Curves.easeIn),
-    ));
-    uploadOpacity = Tween<double>(begin: 1.0, end: 0.0).animate(CurvedAnimation(
-      parent: _aniController..forward(),
-      curve: const Interval(0.25, 0.35, curve: Curves.ease),
-    ));
+            .animate(_toLoadController);
+
+    uploadOpacity =
+        Tween<double>(begin: 1.0, end: 0.0).animate(_toLoadController);
+
     loadingSlideAni = TweenSequence<Offset>([
       TweenSequenceItem(
           tween:
-              Tween<Offset>(begin: const Offset(0, 1), end: const Offset(0, 0))
-                  .chain(CurveTween(curve: Curves.easeIn)),
-          weight: 30),
+              Tween<Offset>(begin: const Offset(0, 1), end: const Offset(0, 0)),
+          weight: 10),
       TweenSequenceItem(
           tween:
               Tween<Offset>(begin: const Offset(0, 0), end: const Offset(0, 0)),
-          weight: 60),
+          weight: 80),
       TweenSequenceItem(
           tween: Tween<Offset>(
               begin: const Offset(0, 0), end: const Offset(0, -1)),
           weight: 10),
-    ]).animate(CurvedAnimation(
-        parent: _aniController..forward(), curve: const Interval(0.30, 0.80)));
+    ]).animate(_loadingController);
 
     loadingOpacityAni = TweenSequence<double>([
-      TweenSequenceItem(
-          tween: Tween<double>(begin: 0.0, end: 1.0)
-              .chain(CurveTween(curve: Curves.easeIn)),
-          weight: 20),
-      TweenSequenceItem(tween: Tween<double>(begin: 1.0, end: 1.0), weight: 50),
-      TweenSequenceItem(tween: Tween<double>(begin: 1.0, end: 0.0), weight: 30),
-    ]).animate(CurvedAnimation(
-        parent: _aniController..forward(), curve: const Interval(0.35, 0.85)));
+      TweenSequenceItem(tween: Tween<double>(begin: 0.0, end: 1.0), weight: 10),
+      TweenSequenceItem(tween: Tween<double>(begin: 1.0, end: 1.0), weight: 80),
+      TweenSequenceItem(tween: Tween<double>(begin: 1.0, end: 0.0), weight: 10),
+    ]).animate(_loadingController);
 
     loadedSlideAni =
         Tween<Offset>(begin: const Offset(0, 1), end: const Offset(0, 0))
-            .animate(CurvedAnimation(
-                parent: _aniController..forward(),
-                curve: const Interval(0.75, 0.9, curve: Curves.easeIn)));
+            .animate(_loadedController);
 
-    loadedOpacityAni = Tween<double>(begin: 0.0, end: 1.0)
-        .chain(CurveTween(curve: Curves.easeIn))
-        .animate(CurvedAnimation(
-            parent: _aniController..forward(),
-            curve: const Interval(0.80, 0.90, curve: Curves.easeIn)));
+    loadedOpacityAni =
+        Tween<double>(begin: 0.0, end: 1.0).animate(_loadedController);
 
     super.initState();
   }
 
   @override
+  void didChangeDependencies() {
+    // TODO: implement didChangeDependencies
+    super.didChangeDependencies();
+  }
+
+  @override
   void dispose() {
-    _aniController.dispose();
+    _progressAniController.dispose();
+    _loadedController.dispose();
+    _loadingController.dispose();
+    _toLoadController.dispose();
     super.dispose();
   }
 
@@ -137,25 +157,25 @@ class _AnimatedProgressButtonAnswerState
         children: <Widget>[
           InkWell(
             onTap: () {
-              if (_aniController.isCompleted) {
-                _aniController.reverse();
+              if (_progressAniController.isCompleted) {
+                _progressAniController.reverse();
                 isToogle = true;
                 return;
               }
-              _aniController.forward();
+              _progressAniController.forward();
               isToogle = false;
             },
             child: AnimatedBuilder(
-              animation: _aniController,
+              animation: _progressAniController,
               builder: (context, child) {
                 return Container(
+                  // decoration: const BoxDecoration(),
+                  // clipBehavior: Clip.hardEdge,
                   height: 80,
                   width: widthAni.value,
                   child: CustomPaint(
                     painter: ProgressPainter(
-                      frame1Progress: frame1Ani.value,
-                      frame2Progress: frame2Ani.value,
-                      frame3Progress: frame3Ani.value,
+                      progress: progressAni.value,
                       strokeWidth: strokeWidthAni.value,
                     ),
                     child: Stack(
@@ -167,7 +187,7 @@ class _AnimatedProgressButtonAnswerState
                           widgetList: <Widget>[
                             const Icon(
                               Icons.arrow_upward,
-                              size: 55,
+                              size: 45,
                               color: Colors.white,
                             ),
                             Text(
@@ -238,15 +258,11 @@ class WordTransition extends StatelessWidget {
 }
 
 class ProgressPainter extends CustomPainter {
-  double frame1Progress;
-  double frame2Progress;
-  double frame3Progress;
+  double progress;
   double strokeWidth;
 
   ProgressPainter({
-    required this.frame1Progress,
-    required this.frame2Progress,
-    required this.frame3Progress,
+    required this.progress,
     required this.strokeWidth,
   });
   @override
@@ -258,19 +274,10 @@ class ProgressPainter extends CustomPainter {
     Offset archEndLeft = Offset(radius, height);
     Offset archEndRight = Offset(width - radius, 0);
 
-    Rect rectCL = Rect.fromCenter(
-        center: Offset(height / 2, height / 2),
-        width: radius * 2,
-        height: radius * 2);
-    Rect rectCR = Rect.fromCenter(
-        center: Offset(width - (height / 2), height / 2),
-        width: radius * 2,
-        height: radius * 2);
-
     Paint borderPaint = Paint()
       ..color = Colors.grey.shade300
       ..style = PaintingStyle.stroke
-      ..strokeWidth = 8
+      ..strokeWidth = strokeWidth
       ..strokeCap = StrokeCap.butt;
 
     Paint buttonPaint = Paint()
@@ -281,16 +288,18 @@ class ProgressPainter extends CustomPainter {
     Path buttonPath = Path()
       ..moveTo(startPoint.dx, startPoint.dy)
       ..lineTo(radius, 0)
-      ..arcToPoint(archEndLeft, radius: Radius.circular(1), clockwise: false)
+      ..arcToPoint(archEndLeft,
+          radius: const Radius.circular(1), clockwise: false)
       ..lineTo(width - radius, height)
-      ..arcToPoint(archEndRight, radius: Radius.circular(1), clockwise: false)
+      ..arcToPoint(archEndRight,
+          radius: const Radius.circular(1), clockwise: false)
       ..lineTo(radius, 0);
     // ..lineTo(width, 0);
 
-    var PathMetrics = buttonPath.computeMetrics();
-    var borderPath = PathMetrics.first;
+    var pathMetrics = buttonPath.computeMetrics();
+    var borderPath = pathMetrics.first;
     var progressPath =
-        borderPath.extractPath(0, borderPath.length * frame1Progress / 100);
+        borderPath.extractPath(0, borderPath.length * progress / 100);
 
     canvas.drawPath(progressPath, borderPaint);
     canvas.drawPath(buttonPath, buttonPaint);
