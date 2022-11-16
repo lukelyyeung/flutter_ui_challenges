@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:ui_challenge/base_page.dart';
 import 'package:ui_challenge/const/challenges_list.dart';
 import 'package:ui_challenge/const/theme.dart';
 

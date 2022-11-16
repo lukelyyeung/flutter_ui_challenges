@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:ui_challenge/answers/animated_progressbutton_answer.dart';
 import 'package:ui_challenge/answers/animated_tick_answer.dart';
+import 'package:ui_challenge/answers/overlay_answer.dart';
 import 'package:ui_challenge/challenges/animated_progressbutton_solution.dart.dart';
+import 'package:ui_challenge/challenges/overlay_solution_page.dart';
 
 import '../base_page.dart';
 import '../challenges/animated_tick_solution.dart';
@@ -31,4 +33,9 @@ Map<String, ChallengeItem> challengesBuilderMap = {
         title: AnimatedProgressButtonAnswer.title,
         child: AnimatedProgressButtonAnswer()),
   ),
+  'Overlay Page': ChallengeItem(
+      solutionBuilder: (_) => const BasePage(
+          child: const OverlaySolutionPage(), title: OverlaySolutionPage.title),
+      answerBuilder: (_) => const BasePage(
+          child: OverlayAnswerPage(), title: OverlayAnswerPage.title))
 };
