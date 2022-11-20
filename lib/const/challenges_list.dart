@@ -35,7 +35,7 @@ Map<String, ChallengeItem> challengesBuilderMap = {
   ),
   'Overlay Page': ChallengeItem(
       solutionBuilder: (_) => const BasePage(
-          child: const OverlaySolutionPage(), title: OverlaySolutionPage.title),
+          title: OverlaySolutionPage.title, child: OverlaySolutionPage()),
       answerBuilder: (_) => const BasePage(
-          child: OverlayAnswerPage(), title: OverlayAnswerPage.title))
+          title: OverlayAnswerPage.title, child: OverlayAnswerPage()))
 };
