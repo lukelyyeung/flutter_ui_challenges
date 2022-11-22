@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 class OverlayAnswerPage extends StatefulWidget {
   const OverlayAnswerPage({super.key});
@@ -12,6 +13,7 @@ class OverlayAnswerPage extends StatefulWidget {
 class _OverlayAnswerPageState extends State<OverlayAnswerPage> {
   OverlayEntry? entry1;
   Offset? graphOffset;
+  bool toShowClickedSpot = false;
 
   @override
   void initState() {
@@ -30,6 +32,15 @@ class _OverlayAnswerPageState extends State<OverlayAnswerPage> {
   Widget build(BuildContext context) {
     double height = MediaQuery.of(context).size.height;
     double width = MediaQuery.of(context).size.width;
+
+    List<double> points = [
+      0.3,
+      0.6,
+      0.2,
+      0.8,
+      1.0,
+    ];
+
     return Column(
       mainAxisAlignment: MainAxisAlignment.center,
       crossAxisAlignment: CrossAxisAlignment.center,
@@ -46,26 +57,28 @@ class _OverlayAnswerPageState extends State<OverlayAnswerPage> {
                   children: [
                     Row(
                       children: [
-                        Expanded(
-                          flex: 1,
+                        Flexible(
+                          flex: 3,
                           child: SizedBox(
                             height: boxConstraints.maxHeight,
                             child: Column(
-                              mainAxisSize: MainAxisSize.max,
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: const <Widget>[
-                                Text('100'),
-                                Text('80'),
-                                Text('60'),
-                                Text('40'),
-                                Text('20'),
-                                Text('0'),
+                                Text('100%'),
+                                Text('80%'),
+                                Text('60%'),
+                                Text('40%'),
+                                Text('20%'),
+                                Text('0%'),
                               ],
                             ),
                           ),
                         ),
+                        const SizedBox(
+                          width: 20,
+                        ),
                         Expanded(
-                          flex: 9,
+                          flex: 19,
                           child: Container(
                             // width: boxConstraints.maxWidth,
                             height: boxConstraints.maxHeight,
@@ -73,25 +86,61 @@ class _OverlayAnswerPageState extends State<OverlayAnswerPage> {
                             child: GestureDetector(
                               // onTap: () => showOverLay(),
                               onTapDown: (tapDownDetails) {
+                                List<Offset> listOfPoints = [
+                                  Offset(
+                                      boxConstraints.maxWidth * 0.8 * 0.2,
+                                      boxConstraints.maxHeight *
+                                          (1 - points[0])),
+                                  Offset(
+                                      boxConstraints.maxWidth * 0.8 * 0.4,
+                                      boxConstraints.maxHeight *
+                                          (1 - points[1])),
+                                  Offset(
+                                      boxConstraints.maxWidth * 0.8 * 0.6,
+                                      boxConstraints.maxHeight *
+                                          (1 - points[2])),
+                                  Offset(
+                                      boxConstraints.maxWidth * 0.8 * 0.8,
+                                      boxConstraints.maxHeight *
+                                          (1 - points[3])),
+                                  Offset(
+                                      boxConstraints.maxWidth * 0.8 * 1.0,
+                                      boxConstraints.maxHeight *
+                                          (1 - points[4])),
+                                ];
                                 RenderBox box =
                                     context.findRenderObject() as RenderBox;
 
-                                Offset point1 =
-                                    Offset(width * 0.8 * 0.2, height * 0.3);
+                                Offset point1 = Offset(
+                                    listOfPoints[0].dx, listOfPoints[0].dy);
                                 bool targetWidth =
                                     (tapDownDetails.localPosition.dx <
-                                            point1.dx + 10) &&
+                                            listOfPoints[0].dx + 5) &&
                                         (tapDownDetails.localPosition.dx >
-                                            point1.dx - 10);
+                                            listOfPoints[0].dx - 5);
+                                bool targetHeight =
+                                    (tapDownDetails.localPosition.dy <
+                                            listOfPoints[0].dy + 5) &&
+                                        (tapDownDetails.localPosition.dy >
+                                            listOfPoints[0].dy - 5);
 
-                                if (targetWidth) {
+                                if (targetWidth && targetHeight) {
+                                  toShowClickedSpot = true;
+
+                                  setState(() {});
+                                  hideOverlay();
                                   showOverLay(box.globalToLocal(
                                       tapDownDetails.globalPosition));
-                                  print(tapDownDetails.localPosition);
+                                }
+                                if (!targetWidth && !targetHeight) {
+                                  hideOverlay();
+                                  setState(() {
+                                    toShowClickedSpot = false;
+                                  });
                                 }
                               },
                               child: CustomPaint(
-                                painter: GraphPaint(),
+                                painter: GraphPaint(points, toShowClickedSpot),
                               ),
                             ),
                           ),
@@ -105,23 +154,6 @@ class _OverlayAnswerPageState extends State<OverlayAnswerPage> {
             },
           ),
         )
-
-        // SizedBox(
-        //   height: height * 0.1,
-        // ),
-        // ElevatedButton.icon(
-        //   style: ButtonStyle(
-        //     shape: MaterialStateProperty.all(
-        //       RoundedRectangleBorder(
-        //         borderRadius: BorderRadius.circular(18.0),
-        //         // side: BorderSide(color: Colors.red),
-        //       ),
-        //     ),
-        //   ),
-        //   onPressed: showOverLay,
-        //   icon: const Icon(Icons.visibility),
-        //   label: const Text('Show Overlay Button'),
-        // )
       ],
     );
   }
@@ -130,28 +162,28 @@ class _OverlayAnswerPageState extends State<OverlayAnswerPage> {
     final overlay = Overlay.of(context)!;
     entry1 = OverlayEntry(builder: (context) {
       return Positioned(
-        height: 150,
-        width: 150,
-        top: startingPoint.dx,
-        right: startingPoint.dy,
-        child: GestureDetector(
-          onTapDown: (tapDownDetails) {
-            hideOverlay();
-          },
-          child: Container(
-            decoration: const BoxDecoration(
-              color: Colors.amber,
-              borderRadius: BorderRadius.all(Radius.circular(20)),
-            ),
-            child: FittedBox(
-              fit: BoxFit.cover,
-              child: Padding(
-                padding: const EdgeInsets.all(10.0),
-                child: Column(
-                  children: const <Widget>[
-                    Text('Cat'),
-                  ],
-                ),
+        // height: 110,
+        // width: 150,
+        top: startingPoint.dx + 300,
+        left: startingPoint.dy,
+        child: Container(
+          height: 100,
+          width: 150,
+          decoration: const BoxDecoration(
+            color: Colors.amber,
+            borderRadius: BorderRadius.all(Radius.circular(20)),
+          ),
+          child: FittedBox(
+            fit: BoxFit.cover,
+            child: Padding(
+              padding: const EdgeInsets.all(10.0),
+              child: Column(
+                children: const <Widget>[
+                  Text(
+                    'Cat',
+                    style: TextStyle(fontSize: 10),
+                  ),
+                ],
               ),
             ),
           ),
@@ -170,17 +202,21 @@ class _OverlayAnswerPageState extends State<OverlayAnswerPage> {
 }
 
 class GraphPaint extends CustomPainter {
+  GraphPaint(this.points, this.toShowClickedSpot);
+  bool toShowClickedSpot;
+  List<double> points;
+
   @override
   void paint(Canvas canvas, Size size) {
     // TODO: implement paint
     double height = size.height;
     double width = size.width;
     Offset startingPoint = Offset(0, height / 2);
-    Offset point1 = Offset(width * 0.2, height * 0.3);
-    Offset point2 = Offset(width * 0.4, height * 0.7);
-    Offset point3 = Offset(width * 0.6, height * 0.1);
-    Offset point4 = Offset(width * 1.0, height * 0.0);
-    Offset point5 = Offset(width, height);
+    Offset point1 = Offset(width * 0.2, height * (1 - points[0]));
+    Offset point2 = Offset(width * 0.4, height * (1 - points[1]));
+    Offset point3 = Offset(width * 0.6, height * (1 - points[2]));
+    Offset point4 = Offset(width * 0.8, height * (1 - points[3]));
+    Offset point5 = Offset(width * 1.0, height * (1 - points[4]));
     Offset endPoint = Offset(width, height);
 
     Paint body = Paint()
@@ -194,6 +230,9 @@ class GraphPaint extends CustomPainter {
       ..strokeWidth = 5
       ..strokeCap = StrokeCap.round
       ..style = PaintingStyle.stroke;
+
+    Path clickPoint = Path()
+      ..addOval(Rect.fromCenter(center: point1, width: 5, height: 5));
 
     Path path = Path()
       ..moveTo(startingPoint.dx, startingPoint.dy)
@@ -209,6 +248,9 @@ class GraphPaint extends CustomPainter {
 
     canvas.drawPath(path, border);
     canvas.drawPath(path, body);
+    if (toShowClickedSpot) {
+      canvas.drawPath(clickPoint, border);
+    }
   }
 
   @override

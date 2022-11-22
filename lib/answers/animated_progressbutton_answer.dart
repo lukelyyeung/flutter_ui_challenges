@@ -127,15 +127,16 @@ class _AnimatedProgressButtonAnswerState
 
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      final RenderBox renderBox =
-          _buttonKey.currentContext?.findRenderObject() as RenderBox;
-      _maxWidth = renderBox.size.width;
+      //TODO: error message
+
+      // final RenderBox renderBox =
+      //     _buttonKey.currentContext?.findRenderObject() as RenderBox;
+      // _maxWidth = renderBox.size.width;
     });
   }
 
   @override
   void didChangeDependencies() {
-    // TODO: implement didChangeDependencies
     super.didChangeDependencies();
   }
 
