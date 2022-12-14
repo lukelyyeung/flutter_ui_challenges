@@ -25,14 +25,17 @@ class _OverlayAnswerPageState extends State<OverlayAnswerPage>
   bool toShowClickedSpot = false;
   late final AnimationController opacityAni;
   late final AnimationController lineAni;
-  late Offset anchorPoint = Offset(0, 0);
+  Offset? anchorPoint;
+  GlobalKey stickyKey = GlobalKey();
+  RenderBox? chartBox;
+  int? selectedIndex;
 
   @override
   void initState() {
     // TODO: implement initState
     super.initState();
     opacityAni = AnimationController(
-        vsync: this, duration: const Duration(milliseconds: 500));
+        vsync: this, duration: const Duration(milliseconds: 1000));
     lineAni = AnimationController(
         vsync: this, duration: const Duration(milliseconds: 1500))
       ..addListener(() {
@@ -56,14 +59,6 @@ class _OverlayAnswerPageState extends State<OverlayAnswerPage>
     double height = MediaQuery.of(context).size.height;
     double width = MediaQuery.of(context).size.width;
 
-    List<double> points = [
-      0.3,
-      0.6,
-      0.2,
-      0.8,
-      1.0,
-    ];
-
     //https://www.oberlo.com/statistics/how-many-people-have-smartphones
     Map<String, double> statistics = {
       '2016': 3.7,
@@ -83,6 +78,55 @@ class _OverlayAnswerPageState extends State<OverlayAnswerPage>
       return (1 - ((statistics.values.elementAt(index) - 3.2) / 4.8));
     });
 
+    Offset getClosestPoint(Offset anchorPoint, Size chartSize) {
+      var result = anchorPoint;
+      var closestDist = chartSize.width;
+
+      for (var i = 0; i <= listOfPoints.length; i++) {
+        var compareWidth = chartSize.width * i * 0.1;
+
+        bool isCloser = (compareWidth - anchorPoint.dx) < closestDist;
+
+        if (isCloser) {
+          closestDist = (compareWidth - anchorPoint.dx).abs();
+          var resultWidth = compareWidth;
+          var resultHeight = listOfPoints[i] * chartSize.height;
+          selectedIndex = i;
+          result = Offset(resultWidth, resultHeight);
+        }
+      }
+
+      return result;
+    }
+
+    void selectPoints(RenderBox chartBox,
+        {DragUpdateDetails? dragUpdateDetails,
+        TapDownDetails? tapDownDetails}) {
+      if (dragUpdateDetails != null) {
+        anchorPoint =
+            getClosestPoint(dragUpdateDetails.localPosition, chartBox.size);
+      }
+      if (tapDownDetails != null) {
+        anchorPoint =
+            getClosestPoint(tapDownDetails.localPosition, chartBox.size);
+      }
+
+      var gloablLocalAnchorPoint = chartBox!.localToGlobal(anchorPoint!);
+      var displayText = statistics.keys.elementAt(selectedIndex!);
+      var displayVal = statistics.values.elementAt(selectedIndex!);
+
+      hideOverlay();
+      opacityAni.reset();
+      opacityAni.forward();
+      showOverLay(
+        gloablLocalAnchorPoint,
+        opacityAni,
+        width,
+        displayText,
+        displayVal.toString(),
+      );
+    }
+
     return Column(
       mainAxisAlignment: MainAxisAlignment.center,
       crossAxisAlignment: CrossAxisAlignment.center,
@@ -98,112 +142,87 @@ class _OverlayAnswerPageState extends State<OverlayAnswerPage>
           width: width,
           child: LayoutBuilder(
             builder: (context, boxConstraints) {
-              return Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 20),
-                child: Column(
-                  children: [
-                    Row(
-                      children: [
-                        Flexible(
-                          flex: 3,
-                          child: SizedBox(
-                            height: boxConstraints.maxHeight - 30,
-                            child: Column(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: const <Widget>[
-                                Text('8.0'),
-                                Text('7.2'),
-                                Text('6.4'),
-                                Text('5.6'),
-                                Text('4.8'),
-                                Text('4.0'),
-                                Text('3.2'),
-                              ],
-                            ),
-                          ),
+              return Column(
+                children: [
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      SizedBox(
+                        width: boxConstraints.maxWidth * 0.05,
+                        height: boxConstraints.maxHeight,
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: const <Widget>[
+                            Text('8.0', style: TextStyle(fontSize: 10)),
+                            Text('7.2', style: TextStyle(fontSize: 10)),
+                            Text('6.4', style: TextStyle(fontSize: 10)),
+                            Text('5.6', style: TextStyle(fontSize: 10)),
+                            Text('4.8', style: TextStyle(fontSize: 10)),
+                            Text('4.0', style: TextStyle(fontSize: 10)),
+                            Text('3.2', style: TextStyle(fontSize: 10)),
+                          ],
                         ),
-                        const SizedBox(
-                          width: 20,
-                        ),
-                        Expanded(
-                          flex: 19,
-                          child: GridPaper(
-                            color: Colors.grey.withOpacity(0.2),
-                            divisions: 5,
-                            // subdivisions: 1,
-                            child: Container(
-                              // width: boxConstraints.maxWidth,
-                              height: boxConstraints.maxHeight - 30,
-                              color: Colors.grey[50],
-                              child: GestureDetector(
-                                onTapDown: (tapDownDetails) {
-                                  anchorPoint = tapDownDetails.globalPosition;
-                                  setState(() {
-                                    if (entry1 != null) {
-                                      hideOverlay();
-                                      opacityAni.reverse();
-                                    } else {
-                                      showOverLay(anchorPoint, opacityAni);
-                                      opacityAni.forward();
-                                    }
-                                  });
-                                  // listOfPoints = getPoints(boxConstraints);
-                                  // RenderBox box =
-                                  //     context.findRenderObject() as RenderBox;
+                      ),
+                      const SizedBox(
+                        width: 20,
+                      ),
+                      SizedBox(
+                        width: boxConstraints.maxWidth * 0.8,
+                        child: GridPaper(
+                          color: Colors.grey.withOpacity(0.2),
+                          divisions: 5,
+                          // subdivisions: 1,
+                          child: Container(
+                            key: stickyKey,
+                            height: boxConstraints.maxHeight,
+                            color: Colors.grey[50],
+                            child: GestureDetector(
+                              onPanUpdate: (dragUpdateDetails) {
+                                final keyContext = stickyKey.currentContext;
+                                chartBox =
+                                    keyContext!.findRenderObject() as RenderBox;
 
-                                  // bool targetWidth =
-                                  //     (tapDownDetails.localPosition.dx <
-                                  //             listOfPoints[0].dx + 5) &&
-                                  //         (tapDownDetails.localPosition.dx >
-                                  //             listOfPoints[0].dx - 5);
-                                  // bool targetHeight =
-                                  //     (tapDownDetails.localPosition.dy <
-                                  //             listOfPoints[0].dy + 5) &&
-                                  //         (tapDownDetails.localPosition.dy >
-                                  //             listOfPoints[0].dy - 5);
+                                setState(() {
+                                  selectPoints(
+                                    chartBox!,
+                                    dragUpdateDetails: dragUpdateDetails,
+                                  );
+                                });
+                              },
+                              onTapDown: (tapDownDetails) {
+                                final keyContext = stickyKey.currentContext;
+                                chartBox =
+                                    keyContext!.findRenderObject() as RenderBox;
 
-                                  // if (targetWidth && targetHeight) {
-                                  //   toShowClickedSpot = true;
-                                  //
-                                  //   setState(() {
-                                  //     hideOverlay();
-                                  //     Offset anchorPoint = box.globalToLocal(
-                                  //         tapDownDetails.globalPosition);
-                                  //     opacityAni.forward();
-                                  //     showOverLay(anchorPoint, opacityAni);
-                                  //   });
-                                  // }
-                                  // if (!targetWidth && !targetHeight) {
-                                  //   hideOverlay();
-                                  //   setState(() {
-                                  //     opacityAni.reverse();
-                                  //     toShowClickedSpot = false;
-                                  //   });
-                                  // }
-                                },
-                                child: CustomPaint(
-                                  painter: GraphPaint(
-                                      listOfPoints, anchorPoint, lineAni.value),
-                                ),
+                                setState(() {
+                                  selectPoints(
+                                    chartBox!,
+                                    tapDownDetails: tapDownDetails,
+                                  );
+                                });
+                              },
+                              child: CustomPaint(
+                                painter: GraphPaint(
+                                    listOfPoints, anchorPoint, lineAni.value),
                               ),
                             ),
                           ),
                         ),
-                      ],
-                    ),
-                    // Row(
-                    //   mainAxisAlignment: MainAxisAlignment.end,
-                    //   children: <Widget>[
-                    //     ...statistics.keys
-                    //         .map((e) => Text(
-                    //               e,
-                    //               style: const TextStyle(fontSize: 10),
-                    //             ))
-                    //         .toList(),
-                    //   ],
-                    // ),
-                  ],
-                ),
+                      ),
+                    ],
+                  ),
+                  // Row(
+                  //   mainAxisAlignment: MainAxisAlignment.end,
+                  //   children: <Widget>[
+                  //     ...statistics.keys
+                  //         .map((e) => Text(
+                  //               e,
+                  //               style: const TextStyle(fontSize: 10),
+                  //             ))
+                  //         .toList(),
+                  //   ],
+                  // ),
+                ],
               );
             },
           ),
@@ -212,18 +231,18 @@ class _OverlayAnswerPageState extends State<OverlayAnswerPage>
     );
   }
 
-  void showOverLay(Offset anchorPoint, Animation<double> opacity) {
+  void showOverLay(Offset anchorPoint, Animation<double> opacity,
+      double pageWidth, String displayText, String displayVal) {
     final overlay = Overlay.of(context)!;
+    bool isRightSide = anchorPoint.dx > (pageWidth * 0.5);
     entry1 = OverlayEntry(builder: (context) {
-      double width = MediaQuery.of(context).size.width;
       return AnimatedPositioned(
         duration: const Duration(milliseconds: 100),
         // height: 110,
         // width: 150,
-        top: anchorPoint.dy + 30,
-        left: (anchorPoint.dx > width * 0.65)
-            ? (anchorPoint.dx - 80)
-            : (anchorPoint.dx + 30),
+        top: isRightSide ? anchorPoint.dy - 100 : anchorPoint.dy + 10,
+        left: isRightSide ? anchorPoint.dx - 140 : anchorPoint.dx + 10,
+
         child: Material(
           type: MaterialType.transparency,
           child: FadeTransition(
@@ -231,21 +250,37 @@ class _OverlayAnswerPageState extends State<OverlayAnswerPage>
             child: BackdropFilter(
               filter: ImageFilter.blur(),
               child: Container(
-                height: 100,
-                width: 100,
-                decoration: const BoxDecoration(
-                  color: Colors.grey,
-                  borderRadius: BorderRadius.all(Radius.circular(20)),
+                height: 80,
+                width: 130,
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                    colors: [
+                      Colors.teal.shade100,
+                      Colors.teal.shade200,
+                      Colors.teal.shade300,
+                      Colors.teal.shade400,
+                      Colors.teal.shade500,
+                    ],
+                  ),
+                  color: Colors.grey.shade100,
+                  borderRadius: const BorderRadius.all(Radius.circular(20)),
                 ),
                 child: FittedBox(
                   fit: BoxFit.cover,
                   child: Padding(
                     padding: const EdgeInsets.all(10.0),
                     child: Column(
-                      children: const <Widget>[
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: <Widget>[
                         Text(
-                          'Cat',
-                          style: TextStyle(fontSize: 10),
+                          'Year: $displayText',
+                          style: const TextStyle(fontSize: 8),
+                        ),
+                        Text(
+                          'Qty: $displayVal',
+                          style: const TextStyle(fontSize: 8),
                         ),
                       ],
                     ),
@@ -270,7 +305,7 @@ class _OverlayAnswerPageState extends State<OverlayAnswerPage>
 
 class GraphPaint extends CustomPainter {
   GraphPaint(this.points, this.anchorPoint, this.lineProgress);
-  Offset anchorPoint;
+  Offset? anchorPoint;
   List<double> points;
   double lineProgress;
 
@@ -290,31 +325,36 @@ class GraphPaint extends CustomPainter {
     Offset point8 = Offset(width * 0.8, height * points[8]);
     Offset point9 = Offset(width * 0.9, height * points[9]);
     Offset point10 = Offset(width * 1.0, height * points[10]);
-
     Offset endPoint = Offset(width, height);
 
-    Paint body = Paint()
+    Paint paintBody = Paint()
       ..color = Colors.green.withOpacity(0.1)
       ..strokeWidth = 7
       ..strokeCap = StrokeCap.round
       ..style = PaintingStyle.fill;
 
-    Paint border = Paint()
-      ..color = Colors.green.shade300
+    Paint paintDot = Paint()
+      ..color = Colors.grey.shade800
+      ..strokeWidth = 7
+      ..strokeCap = StrokeCap.round
+      ..style = PaintingStyle.fill;
+
+    Paint paintLine = Paint()
+      ..color = Colors.green
       ..strokeWidth = 3
       ..strokeCap = StrokeCap.round
       ..style = PaintingStyle.stroke;
 
-    Offset getNearestPoint(anchorPoint) {
-      print(anchorPoint);
-      return Offset(0, 0);
-    }
+    Paint pPointBorder = Paint()
+      ..color = Colors.green
+      ..strokeWidth = 5
+      ..strokeCap = StrokeCap.round
+      ..style = PaintingStyle.fill;
 
-    // nearestClickPoint(anchorPoint);
-    // ;
-
-    Path clickPoint = Path()
-      ..addOval(Rect.fromCenter(center: anchorPoint, width: 5, height: 5));
+    Paint pPointCore = Paint()
+      ..color = Colors.white
+      ..strokeWidth = 3
+      ..style = PaintingStyle.fill;
 
     Path bodyPath = Path()
       ..moveTo(startingPoint.dx, startingPoint.dy)
@@ -332,8 +372,19 @@ class GraphPaint extends CustomPainter {
       ..lineTo(0, height)
       ..close();
     // ..arcToPoint(endPoint);
+    Path dotPath = Path()
+      ..addOval(Rect.fromCenter(center: point1, width: 3, height: 3))
+      ..addOval(Rect.fromCenter(center: point2, width: 3, height: 3))
+      ..addOval(Rect.fromCenter(center: point3, width: 3, height: 3))
+      ..addOval(Rect.fromCenter(center: point4, width: 3, height: 3))
+      ..addOval(Rect.fromCenter(center: point5, width: 3, height: 3))
+      ..addOval(Rect.fromCenter(center: point6, width: 3, height: 3))
+      ..addOval(Rect.fromCenter(center: point7, width: 3, height: 3))
+      ..addOval(Rect.fromCenter(center: point8, width: 3, height: 3))
+      ..addOval(Rect.fromCenter(center: point9, width: 3, height: 3))
+      ..addOval(Rect.fromCenter(center: point10, width: 3, height: 3));
 
-    Path borderPath = Path()
+    Path progressPath = Path()
       ..moveTo(startingPoint.dx, startingPoint.dy)
       ..lineTo(point1.dx, point1.dy)
       ..lineTo(point2.dx, point2.dy)
@@ -346,15 +397,32 @@ class GraphPaint extends CustomPainter {
       ..lineTo(point9.dx, point9.dy)
       ..lineTo(point10.dx, point10.dy);
 
-    PathMetrics linePathMetric = borderPath.computeMetrics();
+    PathMetrics linePathMetric = progressPath.computeMetrics();
     PathMetric linePath = linePathMetric.first;
     Path lineProgessPath =
         linePath.extractPath(0, linePath.length * lineProgress);
 
-    canvas.drawPath(lineProgessPath, border);
-    canvas.drawPath(bodyPath, body);
+    canvas.drawPath(bodyPath, paintBody);
+    canvas.drawPath(lineProgessPath, paintLine);
+    canvas.drawPath(dotPath, paintDot);
 
-    canvas.drawPath(clickPoint, border);
+    if (anchorPoint != null) {
+      Path clickPoint = Path()
+        ..addOval(Rect.fromCenter(
+          center: Offset(anchorPoint!.dx, anchorPoint!.dy),
+          width: 15,
+          height: 15,
+        ));
+
+      Path clickPointCore = Path()
+        ..addOval(Rect.fromCenter(
+          center: Offset(anchorPoint!.dx, anchorPoint!.dy),
+          width: 5,
+          height: 5,
+        ));
+      canvas.drawPath(clickPoint, pPointBorder);
+      canvas.drawPath(clickPointCore, pPointCore);
+    }
   }
 
   @override
