@@ -7,7 +7,7 @@ import 'package:flutter/services.dart';
 //TODO closestSpot
 //TODO indicatorAnimation
 //TODO overlayAnimation
-//TODO
+//TODO Vertical Index Scale
 
 class OverlayAnswerPage extends StatefulWidget {
   const OverlayAnswerPage({super.key});
@@ -74,8 +74,16 @@ class _OverlayAnswerPageState extends State<OverlayAnswerPage>
       '2026': 7.5,
     };
 
+    List<double> sortedList = statistics.values.map((e) => (e)).toList()
+      ..sort();
+    double upperVal = sortedList[sortedList.length - 1].ceilToDouble();
+    double lowerVal = sortedList[0].floorToDouble();
+    double range = upperVal - lowerVal;
+    List<double> colIndex =
+        List.generate(7, (index) => lowerVal + (range / 6 * index));
+
     List<double> listOfPoints = List.generate(statistics.length, (index) {
-      return (1 - ((statistics.values.elementAt(index) - 3.2) / 4.8));
+      return (1 - ((statistics.values.elementAt(index) - lowerVal) / range));
     });
 
     Offset getClosestPoint(Offset anchorPoint, Size chartSize) {
@@ -152,14 +160,11 @@ class _OverlayAnswerPageState extends State<OverlayAnswerPage>
                         height: boxConstraints.maxHeight,
                         child: Column(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: const <Widget>[
-                            Text('8.0', style: TextStyle(fontSize: 10)),
-                            Text('7.2', style: TextStyle(fontSize: 10)),
-                            Text('6.4', style: TextStyle(fontSize: 10)),
-                            Text('5.6', style: TextStyle(fontSize: 10)),
-                            Text('4.8', style: TextStyle(fontSize: 10)),
-                            Text('4.0', style: TextStyle(fontSize: 10)),
-                            Text('3.2', style: TextStyle(fontSize: 10)),
+                          verticalDirection: VerticalDirection.up,
+                          children: <Widget>[
+                            ...colIndex.asMap().entries.map((e) => Text(
+                                e.value.toStringAsFixed(2),
+                                style: const TextStyle(fontSize: 10))),
                           ],
                         ),
                       ),

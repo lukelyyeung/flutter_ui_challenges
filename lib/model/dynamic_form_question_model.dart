@@ -1,13 +1,8 @@
-//TODO Question class Model
-class Questions {
-  Enum type;
-  String question;
-  dynamic answers;
-
-  Questions(this.type, this.question, this.answers);
-}
-
 //TODO Validation & DisplayWidget
+import 'dart:core';
+
+import 'package:flutter/material.dart';
+
 enum QuestionType {
   text,
   radio,
@@ -20,13 +15,84 @@ enum QuestionType {
 class QuestionList {
   List<Questions> _questionList = [];
 
-  void addQuestion(Questions candidate) {
-    _questionList.add(candidate);
-  }
+  // void addQuestion(Questions candidate) {
+  //   _questionList.add(candidate);
+  // }
 
-  void removeQuestion(int index) {
-    _questionList.removeAt(index);
-  }
+  // void removeQuestion(int index) {
+  //   _questionList.removeAt(index);
+  // }
+  // QuestionList.fromJson(){
 
-  List<Questions> get get => _questionList;
+  // }
+
+  List<Questions> get get {
+    return List.unmodifiable(_questionList);
+  }
+}
+
+//** Abstract class */
+class Questions {
+  final int id;
+  final Enum type;
+  final String question;
+  final dynamic answerOptions;
+
+  Questions(this.id, this.type, this.question, this.answerOptions);
+}
+
+//** String Question */
+class StringQuestion implements Questions {
+  @override
+  final int id;
+  @override
+  final Enum type;
+  @override
+  final String question;
+  @override
+  String? answerOptions;
+
+  StringQuestion(this.id, this.type, this.question);
+}
+
+//** Radio Question */
+class RadioQuestion implements Questions {
+  @override
+  final int id;
+  @override
+  final Enum type;
+  @override
+  final String question;
+  @override
+  final List<String> answerOptions;
+
+  RadioQuestion(this.id, this.type, this.question, this.answerOptions);
+}
+
+//** Checkbox Question */
+class CheckboxQuestion implements Questions {
+  @override
+  final int id;
+  @override
+  final Enum type;
+  @override
+  final String question;
+  @override
+  final List<String> answerOptions;
+
+  CheckboxQuestion(this.id, this.type, this.question, this.answerOptions);
+}
+
+//** Multiplechoice Question */
+class MultipleChoiceQuestion implements Questions {
+  @override
+  final int id;
+  @override
+  final Enum type;
+  @override
+  final String question;
+  @override
+  final List<String> answerOptions;
+
+  MultipleChoiceQuestion(this.id, this.type, this.question, this.answerOptions);
 }

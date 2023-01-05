@@ -18,33 +18,33 @@ class ChallengeItem {
 
 Map<String, ChallengeItem> challengesBuilderMap = {
   'Animated Tick': ChallengeItem(
-    solutionBuilder: (_) => const BasePage(
-        title: AnimatedTickSolution.title, child: AnimatedTickSolution()),
-    answerBuilder: (_) => const BasePage(
-        title: AnimatedTickAnswer.title, child: AnimatedTickAnswer()),
+    solutionBuilder: (_) => BasePage(
+        title: AnimatedTickSolution.title, child: const AnimatedTickSolution()),
+    answerBuilder: (_) => BasePage(
+        title: AnimatedTickAnswer.title, child: const AnimatedTickAnswer()),
   ),
   'Animated Progress Button': ChallengeItem(
-    solutionBuilder: (_) => const BasePage(
+    solutionBuilder: (_) => BasePage(
         title: AnimatedProgressButtonSolution.title,
-        child: AnimatedProgressButtonSolution()),
-    answerBuilder: (context) => const BasePage(
+        child: const AnimatedProgressButtonSolution()),
+    answerBuilder: (context) => BasePage(
         title: AnimatedProgressButtonAnswer.title,
-        child: AnimatedProgressButtonAnswer()),
+        child: const AnimatedProgressButtonAnswer()),
   ),
   'Overlay Page': ChallengeItem(
-    solutionBuilder: (_) => const BasePage(
-        title: OverlaySolutionPage.title, child: OverlaySolutionPage()),
-    answerBuilder: (_) => const BasePage(
-        title: OverlayAnswerPage.title, child: OverlayAnswerPage()),
+    solutionBuilder: (_) => BasePage(
+        title: OverlaySolutionPage.title, child: const OverlaySolutionPage()),
+    answerBuilder: (_) => BasePage(
+        title: OverlayAnswerPage.title, child: const OverlayAnswerPage()),
   ),
   'Dynamic Form': ChallengeItem(
-    solutionBuilder: (_) => const BasePage(
+    solutionBuilder: (_) => BasePage(
       title: DynamicFormAnswerPage.title,
-      child: DynamicFormAnswerPage(),
+      child: const DynamicFormAnswerPage(),
     ),
-    answerBuilder: (_) => const BasePage(
+    answerBuilder: (_) => BasePage(
       title: DynamicFormAnswerPage.title,
-      child: DynamicFormAnswerPage(),
+      child: const DynamicFormAnswerPage(),
     ),
   ),
 };

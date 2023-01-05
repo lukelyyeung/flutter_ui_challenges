@@ -1,10 +1,24 @@
 import 'package:flutter/material.dart';
 import 'package:ui_challenge/model/dynamic_form_question_model.dart';
 
-class DynamicFormAnswerPage extends StatelessWidget {
+class DynamicFormAnswerPage extends StatefulWidget {
   const DynamicFormAnswerPage({super.key});
 
   static const title = 'Dynamic Form';
+
+  @override
+  State<DynamicFormAnswerPage> createState() => _DynamicFormAnswerPageState();
+}
+
+class _DynamicFormAnswerPageState extends State<DynamicFormAnswerPage> {
+  Map<int, dynamic> storedAnswer = {};
+  submit() {}
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -13,7 +27,9 @@ class DynamicFormAnswerPage extends StatelessWidget {
 
     Text title = const Text('Questionnaire Name');
 
-    List<Questions> questionList = QuestionList().get;
+    // List<Questions> questionList = http.getQuestion();
+
+    List<String> questionList = ['1'];
 
     return SizedBox(
       height: screenHeight,
@@ -34,8 +50,14 @@ class DynamicFormAnswerPage extends StatelessWidget {
                 children: [
                   title,
                   const SizedBox(height: 10),
-                  ElevatedButton(onPressed: null, child: Text('Add Questions')),
+                  const ElevatedButton(
+                      onPressed: null, child: Text('Create Questionnaire')),
                   //TODO: List of question as QuestionDisplay Widget
+                  // ...questionList.map((e){
+                  //   Widget shoeWidget(e.QuestionType){
+
+                  //   }
+                  // });
                 ],
               ),
             )),
