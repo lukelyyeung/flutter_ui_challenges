@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:ui_challenge/model/dynamic_form_question_model.dart';
 
 class DynamicFormAnswerPage extends StatefulWidget {
   const DynamicFormAnswerPage({super.key});
@@ -11,13 +10,24 @@ class DynamicFormAnswerPage extends StatefulWidget {
 }
 
 class _DynamicFormAnswerPageState extends State<DynamicFormAnswerPage> {
-  Map<int, dynamic> storedAnswer = {};
-  submit() {}
+  Map<int, dynamic> addedQuestion = {};
+  late GlobalKey<FormState> surveyFormKey;
+  late TextEditingController titleTextController;
 
   @override
   void initState() {
     // TODO: implement initState
     super.initState();
+    surveyFormKey = GlobalKey();
+    titleTextController = TextEditingController();
+  }
+
+  @override
+  void dispose() {
+    // TODO: implement dispose
+    titleTextController.dispose();
+    surveyFormKey.currentState!.dispose();
+    super.dispose();
   }
 
   @override
@@ -25,11 +35,22 @@ class _DynamicFormAnswerPageState extends State<DynamicFormAnswerPage> {
     var screenHeight = MediaQuery.of(context).size.height;
     var screenWidth = MediaQuery.of(context).size.width;
 
-    Text title = const Text('Questionnaire Name');
+    String surveyTitle = 'Please enter survey name';
 
     // List<Questions> questionList = http.getQuestion();
 
     List<String> questionList = ['1'];
+    Widget submitButton() {
+      return Padding(
+        padding: const EdgeInsets.all(20),
+        child: ElevatedButton(
+          onPressed: () {
+            surveyFormKey.currentState!.validate();
+          },
+          child: const Text('Submit'),
+        ),
+      );
+    }
 
     return SizedBox(
       height: screenHeight,
@@ -48,10 +69,19 @@ class _DynamicFormAnswerPageState extends State<DynamicFormAnswerPage> {
             child: SingleChildScrollView(
               child: Column(
                 children: [
-                  title,
                   const SizedBox(height: 10),
-                  const ElevatedButton(
-                      onPressed: null, child: Text('Create Questionnaire')),
+                  Form(
+                      key: surveyFormKey,
+                      child: Column(
+                        children: [
+                          SurveyTitle(surveyTitle, surveyFormKey),
+                          submitButton(),
+                        ],
+                      )),
+
+                  const SizedBox(height: 10),
+                  // const ElevatedButton(
+                  //     onPressed: null, child: Text('Create Questionnaire')),
                   //TODO: List of question as QuestionDisplay Widget
                   // ...questionList.map((e){
                   //   Widget shoeWidget(e.QuestionType){
@@ -66,20 +96,59 @@ class _DynamicFormAnswerPageState extends State<DynamicFormAnswerPage> {
   }
 }
 
-class AddNewQuestion extends StatelessWidget {
-  const AddNewQuestion({super.key});
+class SurveyTitle extends StatefulWidget {
+  String surveyTitle;
+  GlobalKey formKey;
+
+  SurveyTitle(this.surveyTitle, this.formKey, {super.key});
+
+  @override
+  State<SurveyTitle> createState() => _SurveyTitleState();
+}
+
+class _SurveyTitleState extends State<SurveyTitle> {
+  TextEditingController? titleEdit;
+  late GlobalKey surveyTitleKey;
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    titleEdit = TextEditingController();
+    surveyTitleKey = GlobalKey<FormState>();
+    // surveyTitleKey.currentState.
+  }
+
+  @override
+  void dispose() {
+    // TODO: implement dispose
+    titleEdit!.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      children: [
-        Text('Question title'),
-        Text('Type of Question'),
-        //TODO if not text type, show answer option
-        Text('Answer Option'),
-        //TODO upon complete, trigger QuestionList().add
-        //TODO or cancel
-      ],
+    return Padding(
+      padding: const EdgeInsets.all(20),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Text('Name of Survey'),
+          TextFormField(
+            decoration:
+                const InputDecoration(hintText: 'please enter some text'),
+
+            onChanged: (value) => widget.surveyTitle = value,
+            validator: (value) {
+              if (value == null || value.isEmpty) {
+                return 'Please enter some text';
+              }
+              return value.characters.length.toString();
+            },
+            // ,
+          ),
+        ],
+      ),
     );
   }
 }
