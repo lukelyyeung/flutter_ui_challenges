@@ -9,6 +9,7 @@ enum QuestionType {
   checkbox,
   email,
   userName,
+  title,
 }
 
 //TODO modify & add questionList Operation
@@ -42,7 +43,7 @@ class Questions {
 }
 
 //** String Question */
-class StringQuestion implements Questions {
+class TextQuestion implements Questions {
   @override
   final int id;
   @override
@@ -52,7 +53,7 @@ class StringQuestion implements Questions {
   @override
   String? answerOptions;
 
-  StringQuestion(this.id, this.type, this.question);
+  TextQuestion(this.id, this.type, this.question);
 }
 
 //** Radio Question */

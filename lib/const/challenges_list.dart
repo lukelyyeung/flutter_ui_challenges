@@ -44,16 +44,16 @@ Map<String, ChallengeItem> challengesBuilderMap = {
     ),
     answerBuilder: (_) => BasePage(
       title: DynamicFormAnswerPage.title,
-      child: DynamicFormAnswerPage(),
       action: [
         PopupMenuButton(itemBuilder: ((context) {
           return [
-            PopupMenuItem(child: Text('option 1'), onTap: () => null),
+            const PopupMenuItem(onTap: null, child: Text('Text Question')),
             // PopupMenuItem(child: Text('option 2')),
             // PopupMenuItem(child: Text('option 3')),
           ];
         }))
       ],
+      child: const DynamicFormAnswerPage(),
     ),
   ),
 };

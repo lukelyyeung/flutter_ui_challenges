@@ -4,8 +4,7 @@ part of 'survey_cubit.dart';
 abstract class SurveyState {}
 
 class SurveyInitial extends SurveyState {
-  late final String surveyTitle;
   late final List<Questions> questions;
 
-  SurveyInitial(this.surveyTitle, this.questions);
+  SurveyInitial(this.questions);
 }
