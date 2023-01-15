@@ -276,6 +276,7 @@ class _QuestionFieldState extends State<QuestionField> {
 
   Row addAnswerField(int index, bool isLast) {
     return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
         AnswerField(
           index,
@@ -291,13 +292,19 @@ class _QuestionFieldState extends State<QuestionField> {
                     widget.counter++;
                     setState(() {});
                   },
-                  icon: const Icon(Icons.add)),
+                  icon: const Icon(
+                    Icons.add,
+                    // size: 15,
+                  )),
               IconButton(
                   onPressed: () {
                     widget.counter--;
                     setState(() {});
                   },
-                  icon: const Icon(Icons.delete))
+                  icon: const Icon(
+                    Icons.delete,
+                    // size: 15,
+                  ))
             ],
           ),
       ],
@@ -315,14 +322,17 @@ class AnswerField extends StatelessWidget {
   Widget build(BuildContext context) {
     return Row(
       children: [
-        Text('Option ${index + 1}'),
+        Text(
+          'Option ${index + 1}',
+          style: TextStyle(),
+        ),
         SizedBox(
-          width: 250,
+          width: 170,
           child: TextFormField(
             // controller: textController,
             autovalidateMode: AutovalidateMode.onUserInteraction,
             decoration: const InputDecoration(
-              hintText: 'please enter some text',
+              hintText: 'answer options',
               prefixIcon: Icon(
                 Icons.arrow_circle_right,
                 color: Colors.blue,
@@ -330,7 +340,7 @@ class AnswerField extends StatelessWidget {
               ),
             ),
             initialValue: null,
-            maxLength: 50,
+            maxLength: 20,
             maxLines: 1,
             validator: (value) {
               if (value == null || value.isEmpty) {
