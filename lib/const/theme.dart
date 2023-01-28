@@ -8,4 +8,9 @@ class StyleClass {
       color: Colors.teal,
       fontWeight: FontWeight.bold,
       height: 1.5);
+
+  static const TextStyle kSurveyQuestion = TextStyle(
+    fontSize: 20,
+    fontWeight: FontWeight.w500,
+  );
 }

@@ -14,7 +14,12 @@ enum QuestionType {
 
 //TODO modify & add questionList Operation
 class QuestionList {
-  List<Questions> _questionList = [];
+  final List<Questions> _questionList = [];
+  final Map<int, QuestionType> _questionMap = {
+    1: QuestionType.text,
+    2: QuestionType.radio,
+    3: QuestionType.checkbox,
+  };
 
   // void addQuestion(Questions candidate) {
   //   _questionList.add(candidate);
@@ -27,6 +32,10 @@ class QuestionList {
 
   // }
 
+  Map<int, QuestionType> get map {
+    return _questionMap;
+  }
+
   List<Questions> get get {
     return List.unmodifiable(_questionList);
   }
@@ -35,9 +44,9 @@ class QuestionList {
 //** Abstract class */
 class Questions {
   final int id;
-  final Enum type;
+  final QuestionType type;
   final String question;
-  final dynamic answerOptions;
+  final List<String>? answerOptions;
 
   Questions(this.id, this.type, this.question, this.answerOptions);
 }
@@ -47,11 +56,11 @@ class TextQuestion implements Questions {
   @override
   final int id;
   @override
-  final Enum type;
+  final QuestionType type;
   @override
   final String question;
   @override
-  String? answerOptions;
+  List<String>? answerOptions;
 
   TextQuestion(this.id, this.type, this.question);
 }
@@ -61,7 +70,7 @@ class RadioQuestion implements Questions {
   @override
   final int id;
   @override
-  final Enum type;
+  final QuestionType type;
   @override
   final String question;
   @override
@@ -75,7 +84,7 @@ class CheckboxQuestion implements Questions {
   @override
   final int id;
   @override
-  final Enum type;
+  final QuestionType type;
   @override
   final String question;
   @override
@@ -89,7 +98,7 @@ class MultipleChoiceQuestion implements Questions {
   @override
   final int id;
   @override
-  final Enum type;
+  final QuestionType type;
   @override
   final String question;
   @override

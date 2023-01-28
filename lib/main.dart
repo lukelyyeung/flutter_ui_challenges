@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:ui_challenge/const/challenges_list.dart';
 import 'package:ui_challenge/const/theme.dart';
+import 'package:ui_challenge/cubit/survey_cubit.dart';
 
 void main() {
   runApp(const MyApp());
@@ -12,13 +14,16 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      debugShowCheckedModeBanner: false,
-      title: 'Flutter Demo',
-      theme: ThemeData(
-        primarySwatch: Colors.blue,
-      ),
-      home: const ChallengesHomePage(title: 'Flutter Demo Home Page'),
-    );
+        debugShowCheckedModeBanner: false,
+        title: 'Flutter Demo',
+        theme: ThemeData(
+          primarySwatch: Colors.blue,
+        ),
+        home: MultiBlocProvider(providers: [
+          BlocProvider(
+            create: (context) => SurveyCubit(),
+          ),
+        ], child: const ChallengesHomePage(title: 'Flutter Demo Home Page')));
   }
 }
 
