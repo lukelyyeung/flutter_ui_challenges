@@ -131,7 +131,7 @@ class _SurveyCheckboxQuestionState extends State<SurveyCheckboxQuestion> {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.only(top: 10),
+      padding: const EdgeInsets.only(top: 20),
       child: Column(
         children: [
           Text(widget.item.question, style: StyleClass.kSurveyQuestion),
@@ -186,6 +186,7 @@ class _SurveyRadioQuestionState extends State<SurveyRadioQuestion> {
           ),
           ...widget.item.answerOptions!.asMap().entries.map((options) {
             return RadioListTile(
+              visualDensity: VisualDensity.compact,
               title: Text(options.value),
               value: options.value,
               groupValue: _selectedAnswer,
